@@ -104,7 +104,7 @@ def addRimlightChoose(sender, event_args):
 	main(BrawlAPI.SelectedNode, True)
 
 def main(node, choose=False):
-	index = 0
+	index = -1
 	rimLightName = "Edge"
 	image = None
 	texNodeExists = False
@@ -140,7 +140,7 @@ def main(node, choose=False):
 				texNodeExists = getChildByName(texFolder, rimLightName)
 			if not texNodeExists:
 				texNode = importTexture(texBres, image, WiiPixelFormat.I8)
-	# For each material that shares the same shader, add the rimlight
+	# For each material that shares the same shader, add the rimlight if it does not exist
 	for child in node.Parent.Children:
 		if child.ShaderNode == shaderNode:
 			if not getChildByName(child, rimLightName):
@@ -158,18 +158,26 @@ def main(node, choose=False):
 				newNode.Normalize = True
 				index = newNode.Index
 	# Update the shader and add the shader stage to it
-	updateTextureRef(shaderNode, index)
-	shaderStage = MDL0TEVStageNode()
-	shaderNode.AddChild(shaderStage)
-	shaderStage.TextureEnabled = True
-	updateMapCoordId(shaderStage, index)
-	shaderStage.ConstantColorSelection = TevKColorSel.Constant1_2
-	shaderStage.ColorSelectionB = ColorArg.TextureColor
-	shaderStage.ColorSelectionC = ColorArg.ConstantColorSelection
-	shaderStage.ColorSelectionD = ColorArg.OutputColor
-	shaderStage.AlphaSelectionD = AlphaArg.OutputAlpha
-	shaderStage.MoveUp()
-	shaderStage.MoveUp()
+	if index > -1:
+		updateTextureRef(shaderNode, index)
+		match = False
+		for stage in shaderNode.Children:
+			if str(stage.TextureMapID) == "TexMap" + str(index):
+				if str(stage.TextureCoordID) == "TexCoord" + str(index):
+					match = True
+		# Only add a shader stage if one with the same TexMap and TexCoord don't already exist
+		if not match:
+			shaderStage = MDL0TEVStageNode()
+			shaderNode.AddChild(shaderStage)
+			shaderStage.TextureEnabled = True
+			updateMapCoordId(shaderStage, index)
+			shaderStage.ConstantColorSelection = TevKColorSel.Constant1_2
+			shaderStage.ColorSelectionB = ColorArg.TextureColor
+			shaderStage.ColorSelectionC = ColorArg.ConstantColorSelection
+			shaderStage.ColorSelectionD = ColorArg.OutputColor
+			shaderStage.AlphaSelectionD = AlphaArg.OutputAlpha
+			shaderStage.MoveUp()
+			shaderStage.MoveUp()
 	
 
 BrawlAPI.AddContextMenuItem(MDL0MaterialWrapper, "", "Add a rimlight to a material", None, ToolStripMenuItem("Add Rimlight", None, addRimlight))
