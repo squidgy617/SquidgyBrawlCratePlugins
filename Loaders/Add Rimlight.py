@@ -139,7 +139,7 @@ def main(node, choose=False):
 			if texFolder:
 				texNodeExists = getChildByName(texFolder, rimLightName)
 			if not texNodeExists:
-				texNode = importTexture(texBres, image, WiiPixelFormat.I8)
+				texNode = importTexture(texBres, image, WiiPixelFormat.CMPR)
 	# For each material that shares the same shader, add the rimlight if it does not exist
 	for child in node.Parent.Children:
 		if child.ShaderNode == shaderNode:
