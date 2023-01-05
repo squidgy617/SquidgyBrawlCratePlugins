@@ -7,3 +7,10 @@ Miscellaneous plugins for BrawlCrate for general quality of life use.
 3. In BrawlCrate, navigate to `Tools > Settings > BrawlAPI` and ensure the `Installation Path` field under `Python` is set to the correct path.
 4. In BrawlCrate, navigate to `Tools > Settings > Updater`, click `Manage Subscriptions`, and paste this link: `https://github.com/squidgy617/SquidgyBrawlCratePlugins`. If you set this up in BrawlCrate, the plugins will update automatically when you launch BrawlCrate.
 5. Restart BrawlCrate.
+
+# Plugins
+
+## Add Rimlight
+**Usage**: Right-Click any material > Add Rimlight **OR** Add Rimlight (Choose)
+
+Adds a rimlight to the selected material and to all materials that share the selected material's shader. If using the standard version of this plugin, the rimlight texture is the first image found in `Resources/SquidgyBrawlCratePlugins/Rimlight Texture` in your BrawlCrate directory. This image can be replaced if you prefer to use something else. If using the "Choose" variant, you will be prompted to select a rimlight texture from your computer. The plugin will not add a rimlight if that exact rimlight already exists for the chosen material and shader.
