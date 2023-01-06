@@ -15,7 +15,7 @@ Miscellaneous plugins for BrawlCrate for general quality of life use.
 
 Adds a rimlight to the selected material and to all materials that share the selected material's shader. If using the standard version of this plugin, the rimlight texture is the first image found in `Resources/SquidgyBrawlCratePlugins/Rimlight Texture` in your BrawlCrate directory. This image can be replaced if you prefer to use something else. If using the "Choose" variant, you will be prompted to select a rimlight texture from your computer. The plugin will not add a rimlight if that exact rimlight already exists for the chosen material and shader.
 
-## Credits
+# Credits
 - Soopercool101, Kryal, BlackJax96, and libertyernie for BrawlLib, BrawlBox, and BrawlCrate. Extra thanks to Soopercool101 for making additions to BrawlCrate to support features needed for the BrawlInstaller plugins.
 - markymawk, for their basic guide to writing plug-ins and for their plug-ins which served as a great learning resource, as well as their stage and music managing guides for Project+ which were a valuable resource.
 - Xenthos, for providing guidance on the procedure for creating rimlights.
