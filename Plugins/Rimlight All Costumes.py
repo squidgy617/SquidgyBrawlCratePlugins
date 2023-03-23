@@ -40,6 +40,6 @@ def main():
 			progressCounter += 1
 			progressBar.Update(progressCounter)
 			progressBar.Finish()
-			BrawlAPI.ShowMessage("Process completed." "Complete")
+			BrawlAPI.ShowMessage("Process completed.", "Complete")
 
 main()
