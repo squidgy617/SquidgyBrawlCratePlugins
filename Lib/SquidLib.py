@@ -48,24 +48,44 @@ def getChildByName(node, name):
 					return child
 		return 0
 
-# Function to update texture refs on shader nodes
-def updateTextureRef(shaderNode, index):
+# Function to update texture matrixes on object nodes
+def updateTextureMatrix(objectNode, index, enable=True):
 	if index == 0:
-		shaderNode.TextureRef0 = True
+		objectNode.TextureMatrix0Enabled = enable
 	elif index == 1:
-		shaderNode.TextureRef1 = True
+		objectNode.TextureMatrix1Enabled = enable
 	elif index == 2:
-		shaderNode.TextureRef2 = True
+		objectNode.TextureMatrix2Enabled = enable
 	elif index == 3:
-		shaderNode.TextureRef3 = True
+		objectNode.TextureMatrix3Enabled = enable
 	elif index == 4:
-		shaderNode.TextureRef4 = True
+		objectNode.TextureMatrix4Enabled = enable
 	elif index == 5:
-		shaderNode.TextureRef5 = True
+		objectNode.TextureMatrix5Enabled = enable
 	elif index == 6:
-		shaderNode.TextureRef6 = True
+		objectNode.TextureMatrix6Enabled = enable
 	elif index == 7:
-		shaderNode.TextureRef7 = True
+		objectNode.TextureMatrix7Enabled = enable
+	
+
+# Function to update texture refs on shader nodes
+def updateTextureRef(shaderNode, index, enable=False):
+	if index == 0:
+		shaderNode.TextureRef0 = enable
+	elif index == 1:
+		shaderNode.TextureRef1 = enable
+	elif index == 2:
+		shaderNode.TextureRef2 = enable
+	elif index == 3:
+		shaderNode.TextureRef3 = enable
+	elif index == 4:
+		shaderNode.TextureRef4 = enable
+	elif index == 5:
+		shaderNode.TextureRef5 = enable
+	elif index == 6:
+		shaderNode.TextureRef6 = enable
+	elif index == 7:
+		shaderNode.TextureRef7 = enable
 
 # Set map and coord ID for shader stages
 def updateMapCoordId(shaderStage, index):
@@ -93,6 +113,86 @@ def updateMapCoordId(shaderStage, index):
 	elif index == 7:
 		shaderStage.TextureMapID = TexMapID.TexMap7
 		shaderStage.TextureCoordID = TexCoordID.TexCoord7
+
+def rimlightFile(file):
+	fileOpened = BrawlAPI.OpenFile(file)
+	if fileOpened:
+		folder = BrawlAPI.RootNode.FindChild('Model Data [0]/3DModels(NW4R)', False)
+		if folder:
+			for child in folder.Children:
+				# Get materials
+				matFolder = child.FindChild('Materials', False)
+				if matFolder:
+					for material in matFolder.Children:
+						# Don't apply to eyes or metal
+						if 'eye' not in material.Name.lower() and 'ExtMtl' not in material.Name.lower():
+							applyRimlight(material, skipMessages=True)
+					BrawlAPI.SaveFile()
+		BrawlAPI.ForceCloseFile()
+
+def removeRimlightFile(file, textureName):
+	fileOpened = BrawlAPI.OpenFile(file)
+	if fileOpened:
+		folder = BrawlAPI.RootNode.FindChild('Texture Data [0]/Textures(NW4R)', False)
+		if folder:
+			textureNode = getChildByName(folder, textureName)
+			if textureNode:
+				changesMade = deleteRimlight(textureNode, skipMessages=True)
+				if changesMade:
+					BrawlAPI.SaveFile()
+		BrawlAPI.ForceCloseFile()
+
+def deleteRimlight(node, skipMessages=False):
+	shaderStages = {}
+	changesMade = False
+	doContinue = True
+	if not skipMessages:
+		doContinue = BrawlAPI.ShowYesNoPrompt("This will remove rimlights using this texture from all materials. Continue?", "Continue?")
+		if not doContinue:
+			return
+	# Get the models
+	bresName = node.Parent.Parent.Name
+	mdlBresName = bresName.replace("Texture", "Model")
+	mdlBres = getChildByName(BrawlAPI.RootNode, mdlBresName)
+	if mdlBres:
+		modelFolder = getChildByName(mdlBres, "3DModels(NW4R)")
+		if modelFolder:
+			# Go through each model to remove rimlights
+			for model in modelFolder.Children:
+				matFolder = getChildByName(model, "Materials")
+				if matFolder:
+					for material in matFolder.Children:
+						# Check if the rimlight is here
+						matRefNode = None
+						for matRef in material.Children:
+							if matRef.Texture == node.Name:
+								matRefNode = matRef
+						# If it's here, store the shader and index
+						if matRefNode:
+							if material.ShaderNode.Name not in shaderStages:
+								shaderStages[material.ShaderNode.Name] = matRefNode.Index
+							# Find objects that use material
+							objectFolder = getChildByName(model, "Objects")
+							if objectFolder:
+								for object in objectFolder.Children:
+									for drawCall in object.DrawCalls:
+										if drawCall.MaterialNode == material:
+											updateTextureMatrix(object, matRefNode.Index, False)
+							# Remove material reference
+							matRefNode.Remove()
+							changesMade = True
+					# Remove shader stages
+					if shaderStages != {}:
+						shaderFolder = getChildByName(model, "Shaders")
+						if shaderFolder:
+							for key, value in shaderStages.items():
+								shaderNode = getChildByName(shaderFolder, key)
+								if shaderNode:
+									shaderNode.Children[value].Remove()
+									changesMade = True
+	# Remove texture node
+	node.Remove()
+	return changesMade
 
 def applyRimlight(node, choose=False, skipMessages=False):
 	index = -1
