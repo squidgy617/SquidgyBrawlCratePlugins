@@ -125,7 +125,7 @@ def rimlightFile(file):
 				if matFolder:
 					for material in matFolder.Children:
 						# Don't apply to eyes or metal
-						if 'eye' not in material.Name.lower() and 'ExtMtl' not in material.Name.lower():
+						if 'eye' not in material.Name.lower() and 'ExtMtl' not in material.Name:
 							applyRimlight(material, skipMessages=True)
 					BrawlAPI.SaveFile()
 		BrawlAPI.ForceCloseFile()
