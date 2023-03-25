@@ -49,7 +49,7 @@ def getChildByName(node, name):
 		return 0
 
 # Function to update texture matrixes on object nodes
-def updateTextureMatrix(objectNode, index, enable=True):
+def updateTextureMatrix(objectNode, index, enable=False):
 	if index == 0:
 		objectNode.TextureMatrix0Enabled = enable
 	elif index == 1:
@@ -69,7 +69,7 @@ def updateTextureMatrix(objectNode, index, enable=True):
 	
 
 # Function to update texture refs on shader nodes
-def updateTextureRef(shaderNode, index, enable=False):
+def updateTextureRef(shaderNode, index, enable=True):
 	if index == 0:
 		shaderNode.TextureRef0 = enable
 	elif index == 1:
