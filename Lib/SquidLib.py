@@ -48,6 +48,12 @@ def getChildByName(node, name):
 					return child
 		return 0
 
+# Got this helper method from markymawwk's code, adds leading zeroes
+def addLeadingZeros(value, count):
+		while len(str(value)) < count:
+			value = "0" + str(value)
+		return str(value)
+
 # Function to update texture matrixes on object nodes
 def updateTextureMatrix(objectNode, index, enable=False):
 	if index == 0:
