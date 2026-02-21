@@ -415,12 +415,30 @@ def generateSlipspaceNodes(node):
 	if (boneGroup and len(boneGroup.Children) > 0):
 		topNode = boneGroup.Children[0]
 		for bone in bones:
+			# Check if bone exists already
+			boneFound = False
+			for child in topNode.Children:
+				if child.Name == bone:
+					boneFound = True
+					break
+			if boneFound:
+				continue
+			# If not, add it
 			boneNode = MDL0BoneNode()
 			boneNode.Name = bone
 			topNode.AddChild(boneNode)
 		enemyNode = topNode.FindChild("Enemies")
 		if (enemyNode):
 			for enemy in enemies:
+				# Check if bone exists already
+				boneFound = False
+				for child in enemyNode.Children:
+					if child.Name == enemy.name:
+						boneFound = True
+						break
+				if boneFound:
+					continue
+				# If not, add it
 				boneNode = MDL0BoneNode()
 				boneNode.Scale = Vector3(enemy.enemy_id, 1, enemy.starting_action)
 				boneNode.Translation = Vector3(enemy.points, enemy.instance_memory, enemy.resource_memory)
@@ -430,6 +448,15 @@ def generateSlipspaceNodes(node):
 		if (enemyGroupsNode):
 			groups = 0
 			for enemyGroup in enemyGroups:
+				# Check if bone exists already
+				boneFound = False
+				for child in enemyGroupsNode.Children:
+					if child.Name == f"EnemyGroup{groups}":
+						boneFound = True
+						break
+				if boneFound:
+					continue
+				# If not, add it
 				enemyGroupStart = MDL0BoneNode()
 				enemyGroupStart.Name = f"EnemyGroup{groups}"
 				enemyGroupsNode.AddChild(enemyGroupStart)
@@ -455,4 +482,53 @@ def disableEnemyNodes(node):
 				boneNode.Scale = enemyBone.Scale
 				boneNode.Translation = enemyBone.Translation
 				boneNode.Rotation = Vector3(enemyBone.Rotation._x, enemyBone.Rotation._y, 0)
+				boneNode.BoneIndex = enemyBone.BoneIndex
 				enemyBone.Replace(boneNode)
+
+def findEnemy(id):
+	for enemy in enemies:
+		if enemy.enemy_id == id:
+			return enemy
+	return None
+
+def defaultAllEnemyMemory(node):
+	boneGroup = node._boneGroup
+	if (boneGroup and len(boneGroup.Children) > 0):
+		topNode = boneGroup.Children[0]
+		enemyNode = topNode.FindChild("Enemies")
+		if (enemyNode):
+			for enemyBone in enemyNode.Children:
+				boneNode = MDL0BoneNode()
+				enemy = findEnemy(enemyBone.Scale._x)
+				if enemy:
+					boneNode.Scale = enemyBone.Scale
+					boneNode.Translation = Vector3(enemyBone.Translation._x, enemy.persistent_memory, enemyBone.Translation._z)
+					boneNode.Rotation = Vector3(enemyBone.Rotation._x, enemy.instance_memory, enemy.resource_memory)
+					boneNode.BoneIndex = enemyBone.BoneIndex
+					enemyBone.Replace(boneNode)
+
+def defaultAllEnemyPoints(node):
+	boneGroup = node._boneGroup
+	if (boneGroup and len(boneGroup.Children) > 0):
+		topNode = boneGroup.Children[0]
+		enemyNode = topNode.FindChild("Enemies")
+		if (enemyNode):
+			for enemyBone in enemyNode.Children:
+				boneNode = MDL0BoneNode()
+				enemy = findEnemy(enemyBone.Scale._x)
+				if enemy:
+					boneNode.Scale = enemyBone.Scale
+					boneNode.Translation = enemyBone.Translation
+					boneNode.Rotation = Vector3(enemy.points, enemyBone.Rotation._y, enemyBone.Rotation._z)
+					boneNode.BoneIndex = enemyBone.BoneIndex
+					enemyBone.Replace(boneNode)
+
+def defaultEnemyFrequency(node):
+	enemy = findEnemy(node.Scale._x)
+	if enemy:
+		boneNode = MDL0BoneNode()
+		boneNode.Scale = node.Scale
+		boneNode.Translation = node.Translation
+		boneNode.Rotation = Vector3(node.Rotation._x, node.Rotation._y, enemy.frequency)
+		boneNode.BoneIndex = node.BoneIndex
+		node.Replace(boneNode)
