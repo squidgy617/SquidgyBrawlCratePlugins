@@ -443,4 +443,16 @@ def generateSlipspaceNodes(node):
 				enemyGroupEnd.Name = f"EnemyGroupEnd{groups}"
 				enemyGroupStart.AddChild(enemyGroupEnd)
 				groups += 1
-			
+
+def disableEnemyNodes(node):
+	boneGroup = node._boneGroup
+	if (boneGroup and len(boneGroup.Children) > 0):
+		topNode = boneGroup.Children[0]
+		enemyNode = topNode.FindChild("Enemies")
+		if (enemyNode):
+			for enemyBone in enemyNode.Children:
+				boneNode = MDL0BoneNode()
+				boneNode.Scale = enemyBone.Scale
+				boneNode.Translation = enemyBone.Translation
+				boneNode.Rotation = Vector3(enemyBone.Rotation._x, enemyBone.Rotation._y, 0)
+				enemyBone.Replace(boneNode)

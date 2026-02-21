@@ -7,6 +7,10 @@ from SquidLib import *
 
 def generateSlipspace(sender, event_args):
 	generateSlipspaceNodes(BrawlAPI.SelectedNode)
+
+def disableEnemies(sender, event_args):
+	disableEnemyNodes(BrawlAPI.SelectedNode)
 	
 
 BrawlAPI.AddContextMenuItem(MDL0Wrapper, "", "Generate Slipspace nodes", None, ToolStripMenuItem("Generate Slipspace Nodes", None, generateSlipspace))
+BrawlAPI.AddContextMenuItem(MDL0Wrapper, "", "Disable all enemies", None, ToolStripMenuItem("Disable all enemies", None, disableEnemies))
