@@ -532,3 +532,15 @@ def defaultEnemyFrequency(node):
 		boneNode.Rotation = Vector3(node.Rotation._x, node.Rotation._y, enemy.frequency)
 		boneNode.BoneIndex = node.BoneIndex
 		node.Replace(boneNode)
+
+def batchRenameBone(node):
+	oldName = node.Name
+	newName = BrawlAPI.UserStringInput("Input new node name")
+	if newName:
+		node.Name = newName
+		bres = node.BRESNode
+		if bres:
+			children = bres.GetChildrenRecursive()
+			for child in children:
+				if child.NodeType == "BrawlLib.SSBB.ResourceNodes.CHR0EntryNode" and child.Name == oldName:
+					child.Name = newName
