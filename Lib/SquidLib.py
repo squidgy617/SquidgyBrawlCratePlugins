@@ -544,3 +544,25 @@ def batchRenameBone(node):
 			for child in children:
 				if child.NodeType == "BrawlLib.SSBB.ResourceNodes.CHR0EntryNode" and child.Name == oldName:
 					child.Name = newName
+
+def removeGFXByNode(node):
+	if node:
+		bres = node.BRESNode
+		if bres:
+			nodeIndex = bres.FileIndex
+			for child in BrawlAPI.RootNode.GetChildrenRecursive():
+				if child.NodeType == "BrawlLib.SSBB.ResourceNodes.EFLSEntryNode" and child.UseBrres and child.BrresId == nodeIndex:
+					child.UseBrres = False
+					child.BrresId = 0
+					child.Name = "<null>"
+			bres.Remove()
+
+def removeGFXByBRRES(bres):
+	if bres:
+		nodeIndex = bres.FileIndex
+		for child in BrawlAPI.RootNode.GetChildrenRecursive():
+			if child.NodeType == "BrawlLib.SSBB.ResourceNodes.EFLSEntryNode" and child.UseBrres and child.BrresId == nodeIndex:
+				child.UseBrres = False
+				child.BrresId = 0
+				child.Name = "<null>"
+		bres.Remove()
