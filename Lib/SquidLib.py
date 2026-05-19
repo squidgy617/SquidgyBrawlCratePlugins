@@ -49,6 +49,14 @@ def getChildByName(node, name):
 					return child
 		return 0
 
+# Get child node starting with prefix
+def getChildByPrefix(node, prefix):
+	if node.Children:
+		for child in node.Children:
+			if child.Name.StartsWith(str(prefix)):
+				return child
+	return 0
+
 # Function to update texture matrixes on object nodes
 def updateTextureMatrix(objectNode, index, enable=False):
 	if index == 0:
