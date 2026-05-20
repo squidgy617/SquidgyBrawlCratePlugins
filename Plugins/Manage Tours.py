@@ -35,13 +35,37 @@ class TourObjectView(object):
 	def CollisionIndex(self, value):
 		self._obj.CollisionIndex = value
 
+class TourStateView(object):
+	def __init__(self, obj):
+		self._obj = obj
+
+	@property
+	def Name(self):
+		return self._obj.Name
+	
+	@Name.setter
+	def Name(self, value):
+		self._obj.Name = value
+
+	@property
+	def FrameCount(self):
+		return self._obj.FrameCount
+	
+	@FrameCount.setter
+	def FrameCount(self, value):
+		self._obj.FrameCount = value
+
 class TourManagerForm(Form):
-	def __init__(self, tourObjects):
+	def __init__(self, tourObjects, tourStates):
 
 		tourObjectView = []
+		tourStateView = []
 		# View setup
 		for tourObject in tourObjects:
 			tourObjectView.append(TourObjectView(tourObject))
+
+		for tourState in tourStates:
+			tourStateView.append(TourStateView(tourState))
 
 		# Form settings
 		self.Text = "Tour Manager"
@@ -63,36 +87,159 @@ class TourManagerForm(Form):
 		split.Panel1MinSize = 100
 		split.Panel2MinSize = 100
 
+		# Tour object split container
+		tourObjectSplit = SplitContainer()
+		tourObjectSplit.Dock = DockStyle.Fill
+		tourObjectSplit.Orientation = Orientation.Vertical
+		tourObjectSplit.SplitterDistance = 250
+		tourObjectSplit.Panel1MinSize = 100
+		tourObjectSplit.Panel2MinSize = 100
+
+		# Tour state split container
+		tourStateSplit = SplitContainer()
+		tourStateSplit.Dock = DockStyle.Fill
+		tourStateSplit.Orientation = Orientation.Vertical
+		tourStateSplit.SplitterDistance = 250
+		tourStateSplit.Panel1MinSize = 100
+		tourStateSplit.Panel2MinSize = 100
+
+		# State object split container
+		stateObjectSplit = SplitContainer()
+		stateObjectSplit.Dock = DockStyle.Fill
+		stateObjectSplit.Orientation = Orientation.Vertical
+		stateObjectSplit.SplitterDistance = 250
+		stateObjectSplit.Panel1MinSize = 100
+		stateObjectSplit.Panel2MinSize = 100
+
+		# Destination split container
+		destinationSplit = SplitContainer()
+		destinationSplit.Dock = DockStyle.Fill
+		destinationSplit.Orientation = Orientation.Vertical
+		destinationSplit.SplitterDistance = 250
+		destinationSplit.Panel1MinSize = 100
+		destinationSplit.Panel2MinSize = 100
+
+		# Tour state layout
+		tourStateLayout = TableLayoutPanel()
+		tourStateLayout.Dock = DockStyle.Fill
+		tourStateLayout.RowCount = 3
+
 		# Controls
 		tourObjectListBox = ListBox()
-		propertyGrid = PropertyGrid()
-
-		# Fill their areas
 		tourObjectListBox.Dock = DockStyle.Fill
-		propertyGrid.Dock = DockStyle.Fill
 
-		# Optional visual tweaks
-		propertyGrid.ToolbarVisible = False
-		propertyGrid.HelpVisible = True
-		propertyGrid.BrowsableAttributes = None
+		tourObjectPropertyGrid = PropertyGrid()
+		tourObjectPropertyGrid.Dock = DockStyle.Fill
+		tourObjectPropertyGrid.ToolbarVisible = False
+		tourObjectPropertyGrid.HelpVisible = True
+		tourObjectPropertyGrid.BrowsableAttributes = None
 
-		# Bindings
-		bindingSource = BindingSource()
-		bindingSource.DataSource = tourObjectView
+		tourStateListBox = ListBox()
+		tourStateListBox.Dock = DockStyle.Fill
+		
+		tourStatePropertyGrid = PropertyGrid()
+		tourStatePropertyGrid.Dock = DockStyle.Fill
+		tourStatePropertyGrid.ToolbarVisible = False
+		tourStatePropertyGrid.HelpVisible = True
+		tourStatePropertyGrid.BrowsableAttributes = None
+		
+		stateObjectListBox = ListBox()
+		stateObjectListBox.Dock = DockStyle.Fill
 
-		tourObjectListBox.DataSource = bindingSource
+		stateObjectPropertyGrid = PropertyGrid()
+		stateObjectPropertyGrid.Dock = DockStyle.Fill
+		stateObjectPropertyGrid.ToolbarVisible = False
+		stateObjectPropertyGrid.HelpVisible = True
+		stateObjectPropertyGrid.BrowsableAttributes = None
+
+		destinationListBox = ListBox()
+		destinationListBox.Dock = DockStyle.Fill
+
+		destinationPropertyGrid = PropertyGrid()
+		destinationPropertyGrid.Dock = DockStyle.Fill
+		destinationPropertyGrid.ToolbarVisible = False
+		destinationPropertyGrid.HelpVisible = True
+		destinationPropertyGrid.BrowsableAttributes = None
+
+		# Tour object bindings
+		tourObjectBindingSource = BindingSource()
+		tourObjectBindingSource.DataSource = tourObjectView
+
+		tourObjectListBox.DataSource = tourObjectBindingSource
 		tourObjectListBox.DisplayMember = "Name"
 
-		propertyGrid.SelectedObject = bindingSource.Current
+		tourObjectPropertyGrid.SelectedObject = tourObjectBindingSource.Current
 
-		def onCurrentChanged(sender, e):
-			propertyGrid.SelectedObject = bindingSource.Current
+		def onCurrentTourObjectChanged(sender, e):
+			tourObjectPropertyGrid.SelectedObject = tourObjectBindingSource.Current
 
-		bindingSource.CurrentChanged += onCurrentChanged
+		tourObjectBindingSource.CurrentChanged += onCurrentTourObjectChanged
+
+		# Tour state bindings
+		tourStateBindingSource = BindingSource()
+		tourStateBindingSource.DataSource = tourStateView
+
+		tourStateListBox.DataSource = tourStateBindingSource
+		tourStateListBox.DisplayMember = "Name"
+
+		tourStatePropertyGrid.SelectedObject = tourStateBindingSource.Current
+
+		def onCurrentTourStateChanged(sender, e):
+			tourStatePropertyGrid.SelectedObject = tourStateBindingSource.Current
+			stateObjectBindingSource.DataSource = tourStateBindingSource.Current._obj.StateObjects
+			destinationBindingSource.DataSource = tourStateBindingSource.Current._obj.Destinations
+
+		tourStateBindingSource.CurrentChanged += onCurrentTourStateChanged
+
+		# State object bindings
+		stateObjectBindingSource = BindingSource()
+		stateObjectBindingSource.DataSource = tourStateBindingSource.Current._obj.StateObjects
+
+		stateObjectListBox.DataSource = stateObjectBindingSource
+		stateObjectListBox.DisplayMember = "Name"
+
+		stateObjectPropertyGrid.SelectedObject = stateObjectBindingSource.Current
+
+		def onCurrentStateObjectChanged(sender, e):
+			stateObjectPropertyGrid.SelectedObject = stateObjectBindingSource.Current
+
+		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
+
+		# Destination bindings
+		destinationBindingSource = BindingSource()
+		destinationBindingSource.DataSource = tourStateBindingSource.Current._obj.Destinations
+
+		destinationListBox.DataSource = destinationBindingSource
+		destinationListBox.DisplayMember = "Name"
+
+		destinationPropertyGrid.SelectedObject = destinationBindingSource.Current
+
+		def onCurrentDestinationChanged(sender, e):
+			destinationPropertyGrid.SelectedObject = destinationBindingSource.Current
+
+		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
 		# Add controls to split panels
-		split.Panel1.Controls.Add(tourObjectListBox)
-		split.Panel2.Controls.Add(propertyGrid)
+		tourObjectSplit.Panel1.Controls.Add(tourObjectListBox)
+		tourObjectSplit.Panel2.Controls.Add(tourObjectPropertyGrid)
+
+		stateObjectSplit.Panel1.Controls.Add(stateObjectListBox)
+		stateObjectSplit.Panel2.Controls.Add(stateObjectPropertyGrid)
+
+		destinationSplit.Panel1.Controls.Add(destinationListBox)
+		destinationSplit.Panel2.Controls.Add(destinationPropertyGrid)
+
+		tourStateSplit.Panel2.Controls.Add(tourStatePropertyGrid)
+
+		tourStateLayout.Controls.Add(tourStatePropertyGrid, 0, 0)
+		tourStateLayout.Controls.Add(stateObjectSplit, 0, 1)
+		tourStateLayout.Controls.Add(destinationSplit, 0, 2)
+
+		tourStateSplit.Panel1.Controls.Add(tourStateListBox)
+		tourStateSplit.Panel2.Controls.Add(tourStateLayout)
+
+		split.Panel1.Controls.Add(tourObjectSplit)
+		split.Panel2.Controls.Add(tourStateSplit)
 
 		# Add to form
 		self.Controls.Add(split)
@@ -276,7 +423,7 @@ def main():
 		# 	test += tourState.StateObjects[0].Name + "\n"
 		# BrawlAPI.ShowMessage(test, "Title")
 		# Populate form
-		form = TourManagerForm(tourObjectList)
+		form = TourManagerForm(tourObjectList, tourStateList)
 		result = form.ShowDialog(MainForm.Instance)
 		form.Dispose()
 
