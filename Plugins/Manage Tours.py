@@ -443,7 +443,10 @@ class TourManagerForm(Form):
 		destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
 
 		def onCurrentDestinationChanged(sender, e):
-			destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
+			try:
+				destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
+			except Exception as e:
+				BrawlAPI.ShowMessage(str(e), "An Error Has Occurred")
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
@@ -482,6 +485,30 @@ class TourManagerForm(Form):
 
 		tourStateAdd.Click += onTourStateAdd
 		tourStateRemove.Click += onTourStateRemove
+
+		def onStateObjectAdd(sender, e):
+			stateObject = StateObject("NewStateObject", tourObjects[0], 0)
+			tourStateBindingSource.Current.StateObjects.append(stateObject)
+			stateObjectBindingSource.ResetBindings(False)
+
+		def onStateObjectRemove(sender, e):
+			tourStateBindingSource.Current.StateObjects.remove(stateObjectBindingSource.Current)
+			stateObjectBindingSource.ResetBindings(False)
+
+		stateObjectAdd.Click += onStateObjectAdd
+		stateObjectRemove.Click += onStateObjectRemove
+
+		def onDestinationAdd(sender, e):
+			newDestination = Destination("NewDestination", tourStates[0], 0)
+			tourStateBindingSource.Current.Destinations.append(newDestination)
+			destinationBindingSource.ResetBindings(False)
+
+		def onDestinationRemove(sender, e):
+			tourStateBindingSource.Current.Destinations.remove(destinationBindingSource.Current)
+			destinationBindingSource.ResetBindings(False)
+
+		destinationAdd.Click += onDestinationAdd
+		destinationRemove.Click += onDestinationRemove
 
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectPanel)
