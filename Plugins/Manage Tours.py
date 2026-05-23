@@ -90,15 +90,6 @@ class DestinationView(object):
 class TourManagerForm(Form):
 	def __init__(self, tourObjects, tourStates):
 
-		tourObjectView = []
-		tourStateView = []
-		# View setup
-		for tourObject in tourObjects:
-			tourObjectView.append(TourObjectView(tourObject))
-
-		for tourState in tourStates:
-			tourStateView.append(TourStateView(tourState))
-
 		# Form settings
 		self.Text = "Tour Manager"
 		self.StartPosition = FormStartPosition.CenterParent
@@ -390,37 +381,40 @@ class TourManagerForm(Form):
 
 		# Tour object bindings
 		tourObjectBindingSource = BindingSource()
-		tourObjectBindingSource.DataSource = tourObjectView
+		tourObjectBindingSource.DataSource = tourObjects
 
 		tourObjectListBox.DataSource = tourObjectBindingSource
 		tourObjectListBox.DisplayMember = "Name"
 
-		tourObjectPropertyGrid.SelectedObject = tourObjectBindingSource.Current
+		tourObjectPropertyGrid.SelectedObject = TourObjectView(tourObjectBindingSource.Current)
 
 		def onCurrentTourObjectChanged(sender, e):
-			tourObjectPropertyGrid.SelectedObject = tourObjectBindingSource.Current
+			tourObjectPropertyGrid.SelectedObject = TourObjectView(tourObjectBindingSource.Current)
 
 		tourObjectBindingSource.CurrentChanged += onCurrentTourObjectChanged
 
 		# Tour state bindings
 		tourStateBindingSource = BindingSource()
-		tourStateBindingSource.DataSource = tourStateView
+		tourStateBindingSource.DataSource = tourStates
 
 		tourStateListBox.DataSource = tourStateBindingSource
 		tourStateListBox.DisplayMember = "Name"
 
-		tourStatePropertyGrid.SelectedObject = tourStateBindingSource.Current
+		tourStatePropertyGrid.SelectedObject = TourStateView(tourStateBindingSource.Current)
 
 		def onCurrentTourStateChanged(sender, e):
-			tourStatePropertyGrid.SelectedObject = tourStateBindingSource.Current
-			stateObjectBindingSource.DataSource = tourStateBindingSource.Current._obj.StateObjects
-			destinationBindingSource.DataSource = tourStateBindingSource.Current._obj.Destinations
+			tourStatePropertyGrid.SelectedObject = TourStateView(tourStateBindingSource.Current)
+			stateObjectBindingSource.DataSource = tourStateBindingSource.Current.StateObjects
+			stateObjectBindingSource.ResetBindings(False)
+			destinationBindingSource.DataSource = tourStateBindingSource.Current.Destinations
+			# BrawlAPI.ShowMessage("Test", "Test")
+			destinationBindingSource.ResetBindings(False)
 
 		tourStateBindingSource.CurrentChanged += onCurrentTourStateChanged
 
 		# State object bindings
 		stateObjectBindingSource = BindingSource()
-		stateObjectBindingSource.DataSource = tourStateBindingSource.Current._obj.StateObjects
+		stateObjectBindingSource.DataSource = tourStateBindingSource.Current.StateObjects
 
 		stateObjectListBox.DataSource = stateObjectBindingSource
 		stateObjectListBox.DisplayMember = "Name"
@@ -432,14 +426,14 @@ class TourManagerForm(Form):
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
-		stateObjectComboBox.DataSource = tourObjectView
+		stateObjectComboBox.DataSource = tourObjects
 		stateObjectComboBox.DisplayMember = "Name"
-		stateObjectComboBox.ValueMember = "_obj"
-		stateObjectComboBox.DataBindings.Add("SelectedValue", stateObjectBindingSource, "TourObject")
+		stateObjectComboBox.ValueMember = "self"
+		stateObjectComboBox.DataBindings.Add("SelectedItem", stateObjectBindingSource, "TourObject")
 
 		# Destination bindings
 		destinationBindingSource = BindingSource()
-		destinationBindingSource.DataSource = tourStateBindingSource.Current._obj.Destinations
+		destinationBindingSource.DataSource = tourStateBindingSource.Current.Destinations
 
 		destinationListBox.DataSource = destinationBindingSource
 		destinationListBox.DisplayMember = "Name"
@@ -451,23 +445,35 @@ class TourManagerForm(Form):
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
-		destinationComboBox.DataSource = tourStateView
+		destinationComboBox.DataSource = tourStates
 		destinationComboBox.DisplayMember = "Name"
-		destinationComboBox.ValueMember = "_obj"
-		destinationComboBox.DataBindings.Add("SelectedValue", destinationBindingSource, "TourState")
+		destinationComboBox.ValueMember = "self"
+		destinationComboBox.DataBindings.Add("SelectedItem", destinationBindingSource, "TourState")
 
 		# Click events
 		def onTourObjectAdd(sender, e):
 			tourObject = TourObject("NewObject", 0, 0)
-			tourObjectView.append(TourObjectView(tourObject))
+			tourObjects.append(tourObject)
 			tourObjectBindingSource.ResetBindings(False)
 
 		def onTourObjectRemove(sender, e):
-			tourObjectView.remove(tourObjectBindingSource.Current)
+			tourObjects.remove(tourObjectBindingSource.Current)
 			tourObjectBindingSource.ResetBindings(False)
 
 		tourObjectAdd.Click += onTourObjectAdd
 		tourObjectRemove.Click += onTourObjectRemove
+
+		def onTourStateAdd(sender, e):
+			tourState = TourState("NewState", 100, [], [])
+			tourStates.append(tourState)
+			tourStateBindingSource.ResetBindings(False) 
+
+		def onTourStateRemove(sender, e):
+			tourStates.remove(tourStateBindingSource.Current)
+			tourStateBindingSource.ResetBindings(False)
+
+		tourStateAdd.Click += onTourStateAdd
+		tourStateRemove.Click += onTourStateRemove
 
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectPanel)
