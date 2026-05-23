@@ -211,6 +211,183 @@ class TourManagerForm(Form):
 		destinationPropertyGrid.HelpVisible = True
 		destinationPropertyGrid.BrowsableAttributes = None
 
+		# Labels
+		tourObjectLabel = Label()
+		tourObjectLabel.Text = "Tour Objects"
+		tourObjectLabel.AutoSize = True
+
+		tourStateLabel = Label()
+		tourStateLabel.Text = "Tour States"
+		tourStateLabel.AutoSize = True
+
+		stateObjectLabel = Label()
+		stateObjectLabel.Text = "State Objects"
+		stateObjectLabel.AutoSize = True
+
+		stateObjectComboLabel = Label()
+		stateObjectComboLabel.Text = "Tour Object"
+		stateObjectComboLabel.AutoSize = True
+
+		destinationLabel = Label()
+		destinationLabel.Text = "Destinations"
+		destinationLabel.AutoSize = True
+
+		destinationComboLabel = Label()
+		destinationComboLabel.Text = "Destination State"
+		destinationComboLabel.AutoSize = True
+
+
+		# +/- buttons
+		tourObjectAdd = Button()
+		tourObjectAdd.Text = "+"
+		tourObjectAdd.Width = 30
+
+		tourObjectRemove = Button()
+		tourObjectRemove.Text = "-"
+		tourObjectRemove.Width = 30
+
+		tourStateAdd = Button()
+		tourStateAdd.Text = "+"
+		tourStateAdd.Width = 30
+
+		tourStateRemove = Button()
+		tourStateRemove.Text = "-"
+		tourStateRemove.Width = 30
+
+		stateObjectAdd = Button()
+		stateObjectAdd.Text = "+"
+		stateObjectAdd.Width = 30
+
+		stateObjectRemove = Button()
+		stateObjectRemove.Text = "-"
+		stateObjectRemove.Width = 30
+
+		destinationAdd = Button()
+		destinationAdd.Text = "+"
+		destinationAdd.Width = 30
+
+		destinationRemove = Button()
+		destinationRemove.Text = "-"
+		destinationRemove.Width = 30
+
+
+		# Header helper
+		def createHeader(label, addButton, removeButton):
+			panel = TableLayoutPanel()
+			panel.Dock = DockStyle.Top
+			panel.Height = 30
+			panel.ColumnCount = 3
+
+			panel.ColumnStyles.Add(
+				ColumnStyle(SizeType.Percent,100)
+			)
+
+			panel.ColumnStyles.Add(
+				ColumnStyle(SizeType.Absolute,35)
+			)
+
+			panel.ColumnStyles.Add(
+				ColumnStyle(SizeType.Absolute,35)
+			)
+
+			panel.Controls.Add(label,0,0)
+			panel.Controls.Add(addButton,1,0)
+			panel.Controls.Add(removeButton,2,0)
+
+			return panel
+
+
+		# List container helper
+		def createListContainer(header,listbox):
+
+			panel = Panel()
+			panel.Dock = DockStyle.Fill
+
+			listbox.Dock = DockStyle.Fill
+
+			panel.Controls.Add(listbox)
+			panel.Controls.Add(header)
+
+			return panel
+
+
+		# Combo container helper
+		def createComboContainer(label,combo):
+
+			panel=TableLayoutPanel()
+
+			panel.Dock=DockStyle.Fill
+			panel.RowCount=2
+
+			panel.RowStyles.Add(
+				RowStyle(SizeType.Absolute,20)
+			)
+
+			panel.RowStyles.Add(
+				RowStyle(SizeType.Percent,100)
+			)
+
+			combo.Dock=DockStyle.Fill
+
+			panel.Controls.Add(label,0,0)
+			panel.Controls.Add(combo,0,1)
+
+			return panel
+
+		tourObjectHeader = createHeader(
+			tourObjectLabel,
+			tourObjectAdd,
+			tourObjectRemove
+		)
+
+		tourStateHeader = createHeader(
+			tourStateLabel,
+			tourStateAdd,
+			tourStateRemove
+		)
+
+		stateObjectHeader = createHeader(
+			stateObjectLabel,
+			stateObjectAdd,
+			stateObjectRemove
+		)
+
+		destinationHeader = createHeader(
+			destinationLabel,
+			destinationAdd,
+			destinationRemove
+		)
+
+		tourObjectPanel = createListContainer(
+			tourObjectHeader,
+			tourObjectListBox
+		)
+
+		tourStatePanel = createListContainer(
+			tourStateHeader,
+			tourStateListBox
+		)
+
+		stateObjectPanel = createListContainer(
+			stateObjectHeader,
+			stateObjectListBox
+		)
+
+		destinationPanel = createListContainer(
+			destinationHeader,
+			destinationListBox
+		)
+
+		stateObjectComboPanel = createComboContainer(
+			stateObjectComboLabel,
+			stateObjectComboBox
+		)
+
+		destinationComboPanel = createComboContainer(
+			destinationComboLabel,
+			destinationComboBox
+		)
+
 		# Tour object bindings
 		tourObjectBindingSource = BindingSource()
 		tourObjectBindingSource.DataSource = tourObjectView
@@ -279,20 +456,33 @@ class TourManagerForm(Form):
 		destinationComboBox.ValueMember = "_obj"
 		destinationComboBox.DataBindings.Add("SelectedValue", destinationBindingSource, "TourState")
 
+		# Click events
+		def onTourObjectAdd(sender, e):
+			tourObject = TourObject("NewObject", 0, 0)
+			tourObjectView.append(TourObjectView(tourObject))
+			tourObjectBindingSource.ResetBindings(False)
+
+		def onTourObjectRemove(sender, e):
+			tourObjectView.remove(tourObjectBindingSource.Current)
+			tourObjectBindingSource.ResetBindings(False)
+
+		tourObjectAdd.Click += onTourObjectAdd
+		tourObjectRemove.Click += onTourObjectRemove
+
 		# Add controls to split panels
-		tourObjectSplit.Panel1.Controls.Add(tourObjectListBox)
+		tourObjectSplit.Panel1.Controls.Add(tourObjectPanel)
 		tourObjectSplit.Panel2.Controls.Add(tourObjectPropertyGrid)
 
-		stateObjectLayout.Controls.Add(stateObjectComboBox, 0, 0)
+		stateObjectLayout.Controls.Add(stateObjectComboPanel, 0, 0)
 		stateObjectLayout.Controls.Add(stateObjectPropertyGrid, 0, 1)
 
-		stateObjectSplit.Panel1.Controls.Add(stateObjectListBox)
+		stateObjectSplit.Panel1.Controls.Add(stateObjectPanel)
 		stateObjectSplit.Panel2.Controls.Add(stateObjectLayout)
 
-		destinationLayout.Controls.Add(destinationComboBox, 0, 0)
+		destinationLayout.Controls.Add(destinationComboPanel, 0, 0)
 		destinationLayout.Controls.Add(destinationPropertyGrid, 0, 1)
 
-		destinationSplit.Panel1.Controls.Add(destinationListBox)
+		destinationSplit.Panel1.Controls.Add(destinationPanel)
 		destinationSplit.Panel2.Controls.Add(destinationLayout)
 
 		tourStateSplit.Panel2.Controls.Add(tourStatePropertyGrid)
@@ -301,7 +491,7 @@ class TourManagerForm(Form):
 		tourStateLayout.Controls.Add(stateObjectSplit, 0, 1)
 		tourStateLayout.Controls.Add(destinationSplit, 0, 2)
 
-		tourStateSplit.Panel1.Controls.Add(tourStateListBox)
+		tourStateSplit.Panel1.Controls.Add(tourStatePanel)
 		tourStateSplit.Panel2.Controls.Add(tourStateLayout)
 
 		split.Panel1.Controls.Add(tourObjectSplit)
