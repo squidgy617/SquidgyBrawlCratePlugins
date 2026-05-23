@@ -6,6 +6,7 @@ from System.Windows.Forms import *
 clr.AddReference("System.Drawing")
 from System.Drawing import *
 from System.ComponentModel import *
+import uuid
 
 class TourObjectView(object):
 	def __init__(self, obj):
@@ -431,7 +432,7 @@ class TourManagerForm(Form):
 		stateObjectComboBox.DataSource = tourObjects
 		stateObjectComboBox.DisplayMember = "Name"
 		stateObjectComboBox.ValueMember = "self"
-		stateObjectComboBox.DataBindings.Add("SelectedItem", stateObjectBindingSource, "TourObject")
+		stateObjectComboBox.DataBindings.Add("SelectedItem", stateObjectBindingSource, "TourObject", True, DataSourceUpdateMode.OnPropertyChanged)
 
 		# Destination bindings
 		destinationBindingSource = BindingSource()
@@ -443,17 +444,14 @@ class TourManagerForm(Form):
 		destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
 
 		def onCurrentDestinationChanged(sender, e):
-			try:
-				destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
-			except Exception as e:
-				BrawlAPI.ShowMessage(str(e), "An Error Has Occurred")
+			destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
 		destinationComboBox.DataSource = tourStates
 		destinationComboBox.DisplayMember = "Name"
 		destinationComboBox.ValueMember = "self"
-		destinationComboBox.DataBindings.Add("SelectedItem", destinationBindingSource, "TourState")
+		destinationComboBox.DataBindings.Add("SelectedItem", destinationBindingSource, "TourState", True, DataSourceUpdateMode.OnPropertyChanged)
 
 		# Click events
 		def onTourObjectAdd(sender, e):
