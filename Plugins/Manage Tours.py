@@ -119,10 +119,18 @@ class TourManagerForm(Form):
 		destinationSplit.Panel1MinSize = 100
 		destinationSplit.Panel2MinSize = 100
 
-		# Tour state layout
+		# Layouts
 		tourStateLayout = TableLayoutPanel()
 		tourStateLayout.Dock = DockStyle.Fill
 		tourStateLayout.RowCount = 3
+
+		stateObjectLayout = TableLayoutPanel()
+		stateObjectLayout.Dock = DockStyle.Fill
+		stateObjectLayout.RowCount = 2
+
+		destinationLayout = TableLayoutPanel()
+		destinationLayout.Dock = DockStyle.Fill
+		destinationLayout.RowCount = 2
 
 		# Controls
 		tourObjectListBox = ListBox()
@@ -146,6 +154,8 @@ class TourManagerForm(Form):
 		stateObjectListBox = ListBox()
 		stateObjectListBox.Dock = DockStyle.Fill
 
+		stateObjectComboBox = ComboBox()
+
 		stateObjectPropertyGrid = PropertyGrid()
 		stateObjectPropertyGrid.Dock = DockStyle.Fill
 		stateObjectPropertyGrid.ToolbarVisible = False
@@ -154,6 +164,8 @@ class TourManagerForm(Form):
 
 		destinationListBox = ListBox()
 		destinationListBox.Dock = DockStyle.Fill
+
+		destinationComboBox = ComboBox()
 
 		destinationPropertyGrid = PropertyGrid()
 		destinationPropertyGrid.Dock = DockStyle.Fill
@@ -205,6 +217,11 @@ class TourManagerForm(Form):
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
+		stateObjectComboBox.DataSource = tourObjectBindingSource
+		stateObjectComboBox.DisplayMember = "Name"
+
+		stateObjectComboBox.SelectedItem = stateObjectBindingSource.Current.TourObject
+
 		# Destination bindings
 		destinationBindingSource = BindingSource()
 		destinationBindingSource.DataSource = tourStateBindingSource.Current._obj.Destinations
@@ -219,15 +236,26 @@ class TourManagerForm(Form):
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
+		destinationComboBox.DataSource = tourStateBindingSource
+		destinationComboBox.DisplayMember = "Name"
+
+		destinationComboBox.SelectedItem = destinationBindingSource.Current.TourState
+
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectListBox)
 		tourObjectSplit.Panel2.Controls.Add(tourObjectPropertyGrid)
 
+		stateObjectLayout.Controls.Add(stateObjectComboBox, 0, 0)
+		stateObjectLayout.Controls.Add(stateObjectPropertyGrid, 0, 1)
+
 		stateObjectSplit.Panel1.Controls.Add(stateObjectListBox)
-		stateObjectSplit.Panel2.Controls.Add(stateObjectPropertyGrid)
+		stateObjectSplit.Panel2.Controls.Add(stateObjectLayout)
+
+		destinationLayout.Controls.Add(destinationComboBox, 0, 0)
+		destinationLayout.Controls.Add(destinationPropertyGrid, 0, 1)
 
 		destinationSplit.Panel1.Controls.Add(destinationListBox)
-		destinationSplit.Panel2.Controls.Add(destinationPropertyGrid)
+		destinationSplit.Panel2.Controls.Add(destinationLayout)
 
 		tourStateSplit.Panel2.Controls.Add(tourStatePropertyGrid)
 
