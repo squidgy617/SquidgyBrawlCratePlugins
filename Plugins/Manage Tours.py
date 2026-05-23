@@ -55,17 +55,37 @@ class TourStateView(object):
 	def FrameCount(self, value):
 		self._obj.FrameCount = value
 
+class StateObjectView(object):
+	def __init__(self, obj):
+		self._obj = obj
+	
+	@property
+	def Name(self):
+		return self._obj.Name
+	
+	@Name.setter
+	def Name(self, value):
+		self._obj.Name = value
+
+	@property
+	def AnimationIndex(self):
+		return self._obj.AnimationIndex
+	
+	@AnimationIndex.setter
+	def AnimationIndex(self, value):
+		self._obj.AnimationIndex = value
+
 class DestinationView(object):
 	def __init__(self, obj):
 		self._obj = obj
 
 	@property
 	def Name(self):
-		return self._name
+		return self._obj.Name
 	
 	@Name.setter
 	def Name(self, value):
-		self._name = value
+		self._obj.Name = value
 
 class TourManagerForm(Form):
 	def __init__(self, tourObjects, tourStates):
@@ -222,10 +242,10 @@ class TourManagerForm(Form):
 		stateObjectListBox.DataSource = stateObjectBindingSource
 		stateObjectListBox.DisplayMember = "Name"
 
-		stateObjectPropertyGrid.SelectedObject = stateObjectBindingSource.Current
+		stateObjectPropertyGrid.SelectedObject = StateObjectView(stateObjectBindingSource.Current)
 
 		def onCurrentStateObjectChanged(sender, e):
-			stateObjectPropertyGrid.SelectedObject = stateObjectBindingSource.Current
+			stateObjectPropertyGrid.SelectedObject = StateObjectView(stateObjectBindingSource.Current)
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
@@ -243,10 +263,10 @@ class TourManagerForm(Form):
 		destinationListBox.DataSource = destinationBindingSource
 		destinationListBox.DisplayMember = "Name"
 
-		destinationPropertyGrid.SelectedObject = destinationBindingSource.Current
+		destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
 
 		def onCurrentDestinationChanged(sender, e):
-			destinationPropertyGrid.SelectedObject = destinationBindingSource.Current
+			destinationPropertyGrid.SelectedObject = DestinationView(destinationBindingSource.Current)
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
