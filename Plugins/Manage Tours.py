@@ -403,12 +403,14 @@ class TourManagerForm(Form):
 		tourStatePropertyGrid.SelectedObject = TourStateView(tourStateBindingSource.Current)
 
 		def onCurrentTourStateChanged(sender, e):
-			tourStatePropertyGrid.SelectedObject = TourStateView(tourStateBindingSource.Current)
-			stateObjectBindingSource.DataSource = tourStateBindingSource.Current.StateObjects
-			stateObjectBindingSource.ResetBindings(False)
-			destinationBindingSource.DataSource = tourStateBindingSource.Current.Destinations
-			# BrawlAPI.ShowMessage("Test", "Test")
-			destinationBindingSource.ResetBindings(False)
+			try:
+				tourStatePropertyGrid.SelectedObject = TourStateView(tourStateBindingSource.Current)
+				stateObjectBindingSource.DataSource = tourStateBindingSource.Current.StateObjects
+				stateObjectBindingSource.ResetBindings(False)
+				destinationBindingSource.DataSource = tourStateBindingSource.Current.Destinations
+				destinationBindingSource.ResetBindings(False)
+			except Exception as e:
+				BrawlAPI.ShowMessage(str(e), "An Error Has Occurred")
 
 		tourStateBindingSource.CurrentChanged += onCurrentTourStateChanged
 
@@ -464,7 +466,13 @@ class TourManagerForm(Form):
 		tourObjectRemove.Click += onTourObjectRemove
 
 		def onTourStateAdd(sender, e):
-			tourState = TourState("NewState", 100, [], [])
+			stateObject = StateObject("NewStateObject", tourObjects[0], 0)
+			stateObjects = []
+			stateObjects.append(stateObject)
+			destination = Destination("NewDestination", tourStates[0], 0)
+			destinations = []
+			destinations.append(destination)
+			tourState = TourState("NewState", 100, stateObjects, destinations)
 			tourStates.append(tourState)
 			tourStateBindingSource.ResetBindings(False) 
 
