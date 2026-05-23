@@ -55,6 +55,18 @@ class TourStateView(object):
 	def FrameCount(self, value):
 		self._obj.FrameCount = value
 
+class DestinationView(object):
+	def __init__(self, obj):
+		self._obj = obj
+
+	@property
+	def Name(self):
+		return self._name
+	
+	@Name.setter
+	def Name(self, value):
+		self._name = value
+
 class TourManagerForm(Form):
 	def __init__(self, tourObjects, tourStates):
 
@@ -217,8 +229,10 @@ class TourManagerForm(Form):
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
-		stateObjectComboBox.DataSource = tourObjectBindingSource
+		stateObjectComboBox.DataSource = tourObjectView
 		stateObjectComboBox.DisplayMember = "Name"
+		stateObjectComboBox.ValueMember = "_obj"
+		stateObjectComboBox.DataBindings.Add("SelectedValue", stateObjectBindingSource, "TourObject")
 
 		stateObjectComboBox.SelectedItem = stateObjectBindingSource.Current.TourObject
 
@@ -236,10 +250,10 @@ class TourManagerForm(Form):
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
-		destinationComboBox.DataSource = tourStateBindingSource
+		destinationComboBox.DataSource = tourStateView
 		destinationComboBox.DisplayMember = "Name"
-
-		destinationComboBox.SelectedItem = destinationBindingSource.Current.TourState
+		destinationComboBox.ValueMember = "_obj"
+		destinationComboBox.DataBindings.Add("SelectedValue", destinationBindingSource, "TourState")
 
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectListBox)
