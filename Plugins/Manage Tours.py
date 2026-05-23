@@ -155,6 +155,10 @@ class TourManagerForm(Form):
 		tourStateLayout = TableLayoutPanel()
 		tourStateLayout.Dock = DockStyle.Fill
 		tourStateLayout.RowCount = 3
+		for i in range(3):
+			tourStateLayout.RowStyles.Add(
+				RowStyle(SizeType.Percent, 33.33)
+			)
 
 		stateObjectLayout = TableLayoutPanel()
 		stateObjectLayout.Dock = DockStyle.Fill
@@ -187,6 +191,7 @@ class TourManagerForm(Form):
 		stateObjectListBox.Dock = DockStyle.Fill
 
 		stateObjectComboBox = ComboBox()
+		stateObjectComboBox.DropDownStyle = ComboBoxStyle.DropDownList
 
 		stateObjectPropertyGrid = PropertyGrid()
 		stateObjectPropertyGrid.Dock = DockStyle.Fill
@@ -198,6 +203,7 @@ class TourManagerForm(Form):
 		destinationListBox.Dock = DockStyle.Fill
 
 		destinationComboBox = ComboBox()
+		destinationComboBox.DropDownStyle = ComboBoxStyle.DropDownList
 
 		destinationPropertyGrid = PropertyGrid()
 		destinationPropertyGrid.Dock = DockStyle.Fill
@@ -253,8 +259,6 @@ class TourManagerForm(Form):
 		stateObjectComboBox.DisplayMember = "Name"
 		stateObjectComboBox.ValueMember = "_obj"
 		stateObjectComboBox.DataBindings.Add("SelectedValue", stateObjectBindingSource, "TourObject")
-
-		stateObjectComboBox.SelectedItem = stateObjectBindingSource.Current.TourObject
 
 		# Destination bindings
 		destinationBindingSource = BindingSource()
