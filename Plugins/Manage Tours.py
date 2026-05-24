@@ -763,9 +763,47 @@ def main():
 								tourObjectBone.Name = tourObject.Name
 								tourObjectBone.Rotation = Vector3(tourObject.ModelIndex, tourObject.CollisionIndex, 0)
 								bone.AddChild(tourObjectBone)
-							# Regenerate bone array
-							rootBone = model.AllBones[0]
-							BaseWrapper.Wrap(rootBone).Regen()
+						if bone.Name == "TourStates":
+							# Generate tour state bones
+							tourStateRoot = MDL0BoneNode()
+							tourStateRoot.Name = "TourStates"
+							# Replace tour state bone
+							bone.Children.Clear()
+							bone.Replace(tourStateRoot)
+							for tourState in form.TourStates:
+								tourStateBone = MDL0BoneNode()
+								tourStateBone.Name = tourState.Name
+								tourStateBone.Rotation = Vector3(tourState.FrameCount, 0, 0)
+								bone.AddChild(tourStateBone)
+								# Add state objects
+								stateObjectBoneRoot = MDL0BoneNode()
+								stateObjectBoneRoot.Name = f"StateObjects{tourState.Name}"
+								tourStateBone.AddChild(stateObjectBoneRoot)
+								for stateObject in tourState.StateObjects:
+									stateObjectBone = MDL0BoneNode()
+									stateObjectBone.Name = stateObject.Name
+									tourObjectIndex = form.TourObjects.index(stateObject.TourObject)
+									stateObjectBone.Rotation = Vector3(tourObjectIndex, stateObject.AnimationIndex, 0)
+									stateObjectBoneRoot.AddChild(stateObjectBone)
+								stateObjectEndBone = MDL0BoneNode()
+								stateObjectEndBone.Name = f"StateObjectsEnd{tourState.Name}"
+								stateObjectBoneRoot.AddChild(stateObjectEndBone)
+								# Add destinations
+								destinationBoneRoot = MDL0BoneNode()
+								destinationBoneRoot.Name = f"Destinations{tourState.Name}"
+								tourStateBone.AddChild(destinationBoneRoot)
+								for destination in tourState.Destinations:
+									destinationBone = MDL0BoneNode()
+									destinationBone.Name = destination.Name
+									tourStateIndex = form.TourStates.index(destination.TourState)
+									destinationBone.Rotation = Vector3(tourStateIndex, 0, 0)
+									destinationBoneRoot.AddChild(destinationBone)
+								destinationEndBone = MDL0BoneNode()
+								destinationEndBone.Name = f"DestinationsEnd{tourState.Name}"
+								destinationBoneRoot.AddChild(destinationEndBone)
+						# Regenerate bone array
+						rootBone = model.AllBones[0]
+						BaseWrapper.Wrap(rootBone).Regen()
 		form.Dispose()
 
 main()
