@@ -701,6 +701,7 @@ def main():
 			if modelFolder:
 				model = modelFolder.Children[0]
 				if model:
+					model.Populate()
 					# Find tour stuff
 					for bone in model.AllBones:
 						if bone.Name == "TourObjects":

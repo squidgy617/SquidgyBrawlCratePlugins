@@ -419,6 +419,7 @@ bones = [
 ]
 
 def generateSlipspaceNodes(node):
+	node.Populate()
 	boneGroup = node._boneGroup
 	if (boneGroup and len(boneGroup.Children) > 0):
 		topNode = boneGroup.Children[0]
@@ -480,6 +481,7 @@ def generateSlipspaceNodes(node):
 				groups += 1
 
 def disableEnemyNodes(node):
+	node.Populate()
 	boneGroup = node._boneGroup
 	if (boneGroup and len(boneGroup.Children) > 0):
 		topNode = boneGroup.Children[0]
@@ -500,6 +502,7 @@ def findEnemy(id):
 	return None
 
 def defaultAllEnemyMemory(node):
+	node.Populate()
 	boneGroup = node._boneGroup
 	if (boneGroup and len(boneGroup.Children) > 0):
 		topNode = boneGroup.Children[0]
@@ -516,6 +519,7 @@ def defaultAllEnemyMemory(node):
 					enemyBone.Replace(boneNode)
 
 def defaultAllEnemyPoints(node):
+	node.Populate()
 	boneGroup = node._boneGroup
 	if (boneGroup and len(boneGroup.Children) > 0):
 		topNode = boneGroup.Children[0]
