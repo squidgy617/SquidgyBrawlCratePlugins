@@ -90,7 +90,10 @@ class DestinationView(object):
 
 class TourManagerForm(Form):
 	def __init__(self, tourObjects, tourStates):
-
+		# Properties
+		self.TourObjects = tourObjects
+		self.TourStates = tourStates
+		
 		# Form settings
 		self.Text = "Tour Manager"
 		self.StartPosition = FormStartPosition.CenterParent
@@ -144,6 +147,12 @@ class TourManagerForm(Form):
 		destinationSplit.Panel2MinSize = 100
 
 		# Layouts
+		mainLayout = TableLayoutPanel()
+		mainLayout.Dock = DockStyle.Fill
+		mainLayout.RowCount = 2
+		mainLayout.RowStyles.Add(RowStyle(SizeType.Percent, 90))
+		mainLayout.RowStyles.Add(RowStyle(SizeType.Absolute, 32))
+
 		tourStateLayout = TableLayoutPanel()
 		tourStateLayout.Dock = DockStyle.Fill
 		tourStateLayout.RowCount = 3
@@ -202,6 +211,10 @@ class TourManagerForm(Form):
 		destinationPropertyGrid.ToolbarVisible = False
 		destinationPropertyGrid.HelpVisible = True
 		destinationPropertyGrid.BrowsableAttributes = None
+
+		applyButton = Button()
+		applyButton.Text = "Apply"
+		applyButton.Dock = DockStyle.Right
 
 		# Labels
 		tourObjectLabel = Label()
@@ -382,7 +395,7 @@ class TourManagerForm(Form):
 
 		# Tour object bindings
 		tourObjectBindingSource = BindingSource()
-		tourObjectBindingSource.DataSource = tourObjects
+		tourObjectBindingSource.DataSource = self.TourObjects
 
 		tourObjectListBox.DataSource = tourObjectBindingSource
 		tourObjectListBox.DisplayMember = "Name"
@@ -396,7 +409,7 @@ class TourManagerForm(Form):
 
 		# Tour state bindings
 		tourStateBindingSource = BindingSource()
-		tourStateBindingSource.DataSource = tourStates
+		tourStateBindingSource.DataSource = self.TourStates
 
 		tourStateListBox.DataSource = tourStateBindingSource
 		tourStateListBox.DisplayMember = "Name"
@@ -429,7 +442,7 @@ class TourManagerForm(Form):
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
-		stateObjectComboBox.DataSource = tourObjects
+		stateObjectComboBox.DataSource = self.TourObjects
 		stateObjectComboBox.DisplayMember = "Name"
 		stateObjectComboBox.ValueMember = "self"
 		stateObjectComboBox.DataBindings.Add("SelectedItem", stateObjectBindingSource, "TourObject", True, DataSourceUpdateMode.OnPropertyChanged)
@@ -448,7 +461,7 @@ class TourManagerForm(Form):
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
-		destinationComboBox.DataSource = tourStates
+		destinationComboBox.DataSource = self.TourStates
 		destinationComboBox.DisplayMember = "Name"
 		destinationComboBox.ValueMember = "self"
 		destinationComboBox.DataBindings.Add("SelectedItem", destinationBindingSource, "TourState", True, DataSourceUpdateMode.OnPropertyChanged)
@@ -456,21 +469,21 @@ class TourManagerForm(Form):
 		# Click events
 		def onTourObjectAdd(sender, e):
 			tourObject = TourObject("NewObject", 0, 0)
-			tourObjects.append(tourObject)
+			self.TourObjects.append(tourObject)
 			tourObjectBindingSource.ResetBindings(False)
 
 		def onTourObjectRemove(sender, e):
-			tourObjects.remove(tourObjectBindingSource.Current)
+			self.TourObjects.remove(tourObjectBindingSource.Current)
 			tourObjectBindingSource.ResetBindings(False)
 
 		tourObjectAdd.Click += onTourObjectAdd
 		tourObjectRemove.Click += onTourObjectRemove
 
 		def onTourStateAdd(sender, e):
-			stateObject = StateObject("NewStateObject", tourObjects[0], 0)
+			stateObject = StateObject("NewStateObject", self.TourObjects[0], 0)
 			stateObjects = []
 			stateObjects.append(stateObject)
-			destination = Destination("NewDestination", tourStates[0], 0)
+			destination = Destination("NewDestination", self.TourStates[0], 0)
 			destinations = []
 			destinations.append(destination)
 			tourState = TourState("NewState", 100, stateObjects, destinations)
@@ -485,7 +498,7 @@ class TourManagerForm(Form):
 		tourStateRemove.Click += onTourStateRemove
 
 		def onStateObjectAdd(sender, e):
-			stateObject = StateObject("NewStateObject", tourObjects[0], 0)
+			stateObject = StateObject("NewStateObject", self.TourObjects[0], 0)
 			tourStateBindingSource.Current.StateObjects.append(stateObject)
 			stateObjectBindingSource.ResetBindings(False)
 
@@ -497,7 +510,7 @@ class TourManagerForm(Form):
 		stateObjectRemove.Click += onStateObjectRemove
 
 		def onDestinationAdd(sender, e):
-			newDestination = Destination("NewDestination", tourStates[0], 0)
+			newDestination = Destination("NewDestination", self.TourStates[0], 0)
 			tourStateBindingSource.Current.Destinations.append(newDestination)
 			destinationBindingSource.ResetBindings(False)
 
@@ -507,6 +520,12 @@ class TourManagerForm(Form):
 
 		destinationAdd.Click += onDestinationAdd
 		destinationRemove.Click += onDestinationRemove
+
+		def onApply(sender, e):
+			self.DialogResult = DialogResult.OK
+			self.Close()
+
+		applyButton.Click += onApply
 
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectPanel)
@@ -537,7 +556,10 @@ class TourManagerForm(Form):
 		split.Panel2.Controls.Add(tourStateSplit)
 
 		# Add to form
-		self.Controls.Add(split)
+		mainLayout.Controls.Add(split, 0, 0)
+		mainLayout.Controls.Add(applyButton, 0, 1)
+
+		self.Controls.Add(mainLayout)
 
 
 class TourObject(object):
@@ -720,6 +742,30 @@ def main():
 		# Populate form
 		form = TourManagerForm(tourObjectList, tourStateList)
 		result = form.ShowDialog(MainForm.Instance)
+		# Apply changes
+		if result == DialogResult.OK:
+			# Replace tour objects
+			modelFolder = modelData.GetFolder[MDL0Node]()
+			if modelFolder:
+				model = modelFolder.Children[0]
+				if model:
+					# Find tour stuff
+					for bone in model.AllBones:
+						if bone.Name == "TourObjects":
+							# Generate tour object bones
+							tourObjectRoot = MDL0BoneNode()
+							tourObjectRoot.Name = "TourObjects"
+							# Replace tour object bone
+							bone.Children.Clear()
+							bone.Replace(tourObjectRoot)
+							for tourObject in form.TourObjects:
+								tourObjectBone = MDL0BoneNode()
+								tourObjectBone.Name = tourObject.Name
+								tourObjectBone.Rotation = Vector3(tourObject.ModelIndex, tourObject.CollisionIndex, 0)
+								bone.AddChild(tourObjectBone)
+							# Regenerate bone array
+							rootBone = model.AllBones[0]
+							BaseWrapper.Wrap(rootBone).Regen()
 		form.Dispose()
 
 main()
