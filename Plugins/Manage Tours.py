@@ -711,7 +711,7 @@ def main():
 		# Iterate through tour states and populate their destinations
 		for tourState in tourStateList:
 			for destination in tourState.Destinations:
-				destination.tourState = tourStateList[destination.TourStateIndex]
+				destination.TourState = tourStateList[destination.TourStateIndex]
 		# Test code
 		# test = ""
 		# for tourState in tourStateList:
