@@ -194,6 +194,9 @@ class TourManagerForm(Form):
 		stateObjectComboBox = ComboBox()
 		stateObjectComboBox.DropDownStyle = ComboBoxStyle.DropDownList
 
+		stateObjectButton = Button()
+		stateObjectButton.Text = "Auto-Name"
+
 		stateObjectPropertyGrid = PropertyGrid()
 		stateObjectPropertyGrid.Dock = DockStyle.Fill
 		stateObjectPropertyGrid.ToolbarVisible = False
@@ -202,6 +205,9 @@ class TourManagerForm(Form):
 
 		destinationListBox = ListBox()
 		destinationListBox.Dock = DockStyle.Fill
+
+		destinationButton = Button()
+		destinationButton.Text = "Auto-Name"
 
 		destinationComboBox = ComboBox()
 		destinationComboBox.DropDownStyle = ComboBoxStyle.DropDownList
@@ -317,15 +323,19 @@ class TourManagerForm(Form):
 
 
 		# Combo container helper
-		def createComboContainer(label,combo):
+		def createComboContainer(label,combo,button):
 
 			panel=TableLayoutPanel()
 
 			panel.Dock=DockStyle.Fill
-			panel.RowCount=2
+			panel.RowCount=3
 
 			panel.RowStyles.Add(
 				RowStyle(SizeType.Absolute,20)
+			)
+
+			panel.RowStyles.Add(
+				RowStyle(SizeType.Percent,100)
 			)
 
 			panel.RowStyles.Add(
@@ -336,6 +346,7 @@ class TourManagerForm(Form):
 
 			panel.Controls.Add(label,0,0)
 			panel.Controls.Add(combo,0,1)
+			panel.Controls.Add(button,0,2)
 
 			return panel
 
@@ -385,12 +396,14 @@ class TourManagerForm(Form):
 
 		stateObjectComboPanel = createComboContainer(
 			stateObjectComboLabel,
-			stateObjectComboBox
+			stateObjectComboBox,
+			stateObjectButton
 		)
 
 		destinationComboPanel = createComboContainer(
 			destinationComboLabel,
-			destinationComboBox
+			destinationComboBox,
+			destinationButton
 		)
 
 		# Tour object bindings
@@ -534,6 +547,18 @@ class TourManagerForm(Form):
 			self.Close()
 
 		applyButton.Click += onApply
+
+		def onStateObjectAutoName(sender, e):
+			stateObjectBindingSource.Current.Name = f"{tourStateBindingSource.Current.Name}StateObject{stateObjectBindingSource.Current.TourObject.Name}"
+			stateObjectBindingSource.ResetBindings(False)
+
+		stateObjectButton.Click += onStateObjectAutoName
+
+		def onDestinationAutoName(sender, e):
+			destinationBindingSource.Current.Name = f"{tourStateBindingSource.Current.Name}Dest{destinationBindingSource.Current.TourState.Name}"
+			destinationBindingSource.ResetBindings(False)
+
+		destinationButton.Click += onDestinationAutoName
 
 		# Add controls to split panels
 		tourObjectSplit.Panel1.Controls.Add(tourObjectPanel)
