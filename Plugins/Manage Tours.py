@@ -442,7 +442,9 @@ class TourManagerForm(Form):
 
 		stateObjectBindingSource.CurrentChanged += onCurrentStateObjectChanged
 
-		stateObjectComboBox.DataSource = self.TourObjects
+		stateObjectTourObjectBindingSource = BindingSource()
+		stateObjectTourObjectBindingSource.DataSource = self.TourObjects
+		stateObjectComboBox.DataSource = stateObjectTourObjectBindingSource
 		stateObjectComboBox.DisplayMember = "Name"
 		stateObjectComboBox.ValueMember = "self"
 		stateObjectComboBox.DataBindings.Add("SelectedItem", stateObjectBindingSource, "TourObject", True, DataSourceUpdateMode.OnPropertyChanged)
@@ -461,7 +463,9 @@ class TourManagerForm(Form):
 
 		destinationBindingSource.CurrentChanged += onCurrentDestinationChanged
 
-		destinationComboBox.DataSource = self.TourStates
+		destinationStateBindingSource = BindingSource()
+		destinationStateBindingSource.DataSource = self.TourStates
+		destinationComboBox.DataSource = destinationStateBindingSource
 		destinationComboBox.DisplayMember = "Name"
 		destinationComboBox.ValueMember = "self"
 		destinationComboBox.DataBindings.Add("SelectedItem", destinationBindingSource, "TourState", True, DataSourceUpdateMode.OnPropertyChanged)
@@ -471,10 +475,12 @@ class TourManagerForm(Form):
 			tourObject = TourObject("NewObject", 0, 0)
 			self.TourObjects.append(tourObject)
 			tourObjectBindingSource.ResetBindings(False)
+			stateObjectTourObjectBindingSource.ResetBindings(False)
 
 		def onTourObjectRemove(sender, e):
 			self.TourObjects.remove(tourObjectBindingSource.Current)
 			tourObjectBindingSource.ResetBindings(False)
+			stateObjectTourObjectBindingSource.ResetBindings(False)
 
 		tourObjectAdd.Click += onTourObjectAdd
 		tourObjectRemove.Click += onTourObjectRemove
@@ -489,10 +495,12 @@ class TourManagerForm(Form):
 			tourState = TourState("NewState", 100, stateObjects, destinations)
 			tourStates.append(tourState)
 			tourStateBindingSource.ResetBindings(False) 
+			destinationStateBindingSource.ResetBindings(False)
 
 		def onTourStateRemove(sender, e):
 			tourStates.remove(tourStateBindingSource.Current)
 			tourStateBindingSource.ResetBindings(False)
+			destinationStateBindingSource.ResetBindings(False)
 
 		tourStateAdd.Click += onTourStateAdd
 		tourStateRemove.Click += onTourStateRemove
