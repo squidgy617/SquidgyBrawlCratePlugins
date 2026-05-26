@@ -6,7 +6,7 @@ from System.Windows.Forms import *
 clr.AddReference("System.Drawing")
 from System.Drawing import *
 from System.ComponentModel import *
-import uuid
+from BrawlLib.SSBB.Types import *
 
 class TourObjectView(object):
 	def __init__(self, obj):
@@ -87,6 +87,75 @@ class DestinationView(object):
 	@Name.setter
 	def Name(self, value):
 		self._obj.Name = value
+
+class ObjectPicker(Form):
+	def __init__(self, objects, displayMember):
+		self.Text = "Select Animation"
+		self.Width = 420
+		self.Height = 160
+		self.MinimumSize = Size(350, 150)
+		self.StartPosition = FormStartPosition.CenterParent
+		self.FormBorderStyle = FormBorderStyle.FixedDialog
+		self.MaximizeBox = False
+		self.MinimizeBox = False
+		self.Padding = Padding(12)
+
+		# Main layout
+		panel = TableLayoutPanel()
+		panel.Dock = DockStyle.Fill
+		panel.ColumnCount = 1
+		panel.RowCount = 3
+		panel.RowStyles.Add(RowStyle(SizeType.Absolute, 24))
+		panel.RowStyles.Add(RowStyle(SizeType.Absolute, 32))
+		panel.RowStyles.Add(RowStyle(SizeType.Percent, 100))
+
+		# Label
+		label = Label()
+		label.Text = "Animation"
+		label.Dock = DockStyle.Fill
+		label.TextAlign = ContentAlignment.BottomLeft
+		label.AutoSize = True
+
+		# ComboBox
+		self.comboBox = ComboBox()
+		self.comboBox.Dock = DockStyle.Fill
+		self.comboBox.DropDownStyle = ComboBoxStyle.DropDownList
+
+		comboBoxBindingSource = BindingSource()
+		comboBoxBindingSource.DataSource = objects
+
+		self.comboBox.DataSource = comboBoxBindingSource
+		self.comboBox.DisplayMember = displayMember
+		self.comboBox.ValueMember = "self"
+
+		# Button panel (right aligned)
+		buttonPanel = FlowLayoutPanel()
+		buttonPanel.Dock = DockStyle.Fill
+		buttonPanel.FlowDirection = FlowDirection.RightToLeft
+		buttonPanel.Padding = Padding(0, 10, 0, 0)
+
+		button = Button()
+		button.Text = "OK"
+		button.Width = 90
+		button.Height = 28
+
+		def onSelect(sender, e):
+			self.DialogResult = DialogResult.OK
+			self.Close()
+
+		button.Click += onSelect
+
+		buttonPanel.Controls.Add(button)
+
+		# Add controls
+		panel.Controls.Add(label, 0, 0)
+		panel.Controls.Add(self.comboBox, 0, 1)
+		panel.Controls.Add(buttonPanel, 0, 2)
+
+		self.Controls.Add(panel)
+
+		# Enter key activates button
+		self.AcceptButton = button
 
 class TourManagerForm(Form):
 	def __init__(self, tourObjects, tourStates):
@@ -196,6 +265,9 @@ class TourManagerForm(Form):
 
 		stateObjectButton = Button()
 		stateObjectButton.Text = "Auto-Name"
+
+		stateObjectFindButton = Button()
+		stateObjectFindButton.Text = "Select Anim"
 
 		stateObjectPropertyGrid = PropertyGrid()
 		stateObjectPropertyGrid.Dock = DockStyle.Fill
@@ -323,12 +395,12 @@ class TourManagerForm(Form):
 
 
 		# Combo container helper
-		def createComboContainer(label,combo,button):
+		def createComboContainer(label,combo,buttons):
 
 			panel=TableLayoutPanel()
 
 			panel.Dock=DockStyle.Fill
-			panel.RowCount=3
+			panel.RowCount=2 + len(buttons)
 
 			panel.RowStyles.Add(
 				RowStyle(SizeType.Absolute,20)
@@ -338,15 +410,18 @@ class TourManagerForm(Form):
 				RowStyle(SizeType.Percent,100)
 			)
 
-			panel.RowStyles.Add(
-				RowStyle(SizeType.Percent,100)
-			)
+			for i in range(len(buttons)):
+				panel.RowStyles.Add(
+					RowStyle(SizeType.Percent,100)
+				)
 
 			combo.Dock=DockStyle.Fill
 
 			panel.Controls.Add(label,0,0)
 			panel.Controls.Add(combo,0,1)
-			panel.Controls.Add(button,0,2)
+			
+			for i in range(len(buttons)):
+				panel.Controls.Add(buttons[i],i,2)
 
 			return panel
 
@@ -397,13 +472,13 @@ class TourManagerForm(Form):
 		stateObjectComboPanel = createComboContainer(
 			stateObjectComboLabel,
 			stateObjectComboBox,
-			stateObjectButton
+			[stateObjectButton, stateObjectFindButton]
 		)
 
 		destinationComboPanel = createComboContainer(
 			destinationComboLabel,
 			destinationComboBox,
-			destinationButton
+			[destinationButton]
 		)
 
 		# Tour object bindings
@@ -530,6 +605,19 @@ class TourManagerForm(Form):
 		stateObjectAdd.Click += onStateObjectAdd
 		stateObjectRemove.Click += onStateObjectRemove
 
+		def onStateObjectFind(sender, e):
+			modelData = stateObjectBindingSource.Current.TourObject.ModelData
+			if modelData:
+				anmChr = modelData.FindChild("AnmChr(NW4R)")
+				if anmChr:
+					objectSelector = ObjectPicker(anmChr.Children, "Name")
+					result = objectSelector.ShowDialog(MainForm.Instance)
+					if result == DialogResult.OK and objectSelector.comboBox.SelectedItem:
+						stateObjectBindingSource.Current.AnimationIndex = objectSelector.comboBox.SelectedItem.Index
+						stateObjectBindingSource.ResetBindings(False)
+
+		stateObjectFindButton.Click += onStateObjectFind
+
 		def onDestinationAdd(sender, e):
 			newDestination = Destination("NewDestination", self.TourStates[0], 0)
 			tourStateBindingSource.Current.Destinations.append(newDestination)
@@ -596,10 +684,11 @@ class TourManagerForm(Form):
 
 
 class TourObject(object):
-	def __init__(self, name, modelIndex, collisionIndex):
+	def __init__(self, name, modelIndex, collisionIndex, modelData):
 		self._name = name
 		self._modelIndex = modelIndex
 		self._collisionIndex = collisionIndex
+		self._modelData = modelData
 
 	@property
 	def Name(self):
@@ -624,6 +713,14 @@ class TourObject(object):
 	@CollisionIndex.setter
 	def CollisionIndex(self, value):
 		self._collisionIndex = value
+
+	@property
+	def ModelData(self):
+		return self._modelData
+	
+	@ModelData.setter
+	def ModelData(self, value):
+		self._modelData = value
 
 class StateObject(object):
 	def __init__(self, name, tourObject, animationIndex):
@@ -740,7 +837,12 @@ def main():
 						if bone.Name == "TourObjects":
 							# Add all tour objects to list
 							for tourObjectBone in bone.Children:
-								tourObjectList.append(TourObject(tourObjectBone.Name, tourObjectBone.Rotation._x, tourObjectBone.Rotation._y))
+								modelData = None
+								archive = BrawlAPI.RootNode.FindChild("2")
+								for child in archive.Children:
+									if child.NodeType == "BrawlLib.SSBB.ResourceNodes.BRRESNode" and child.FileType == ARCFileType.ModelData and child.FileIndex == int(tourObjectBone.Rotation._x):
+										modelData = child
+								tourObjectList.append(TourObject(tourObjectBone.Name, tourObjectBone.Rotation._x, tourObjectBone.Rotation._y, modelData))
 						if bone.Name == "TourStates":
 							# Iterate through the tour states
 							for tourStateBone in bone.Children:
