@@ -837,12 +837,12 @@ def main():
 						if bone.Name == "TourObjects":
 							# Add all tour objects to list
 							for tourObjectBone in bone.Children:
-								modelData = None
+								newModelData = None
 								archive = BrawlAPI.RootNode.FindChild("2")
 								for child in archive.Children:
 									if child.NodeType == "BrawlLib.SSBB.ResourceNodes.BRRESNode" and child.FileType == ARCFileType.ModelData and child.FileIndex == int(tourObjectBone.Rotation._x):
-										modelData = child
-								tourObjectList.append(TourObject(tourObjectBone.Name, tourObjectBone.Rotation._x, tourObjectBone.Rotation._y, modelData))
+										newModelData = child
+								tourObjectList.append(TourObject(tourObjectBone.Name, tourObjectBone.Rotation._x, tourObjectBone.Rotation._y, newModelData))
 						if bone.Name == "TourStates":
 							# Iterate through the tour states
 							for tourStateBone in bone.Children:
@@ -885,6 +885,7 @@ def main():
 			if modelFolder:
 				model = modelFolder.Children[0]
 				if model:
+					model.Populate()
 					# Find tour stuff
 					for bone in model.AllBones:
 						if bone.Name == "TourObjects":
