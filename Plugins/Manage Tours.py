@@ -56,6 +56,22 @@ class TourStateView(object):
 	def FrameCount(self, value):
 		self._obj.FrameCount = value
 
+	@property
+	def TargetCheckpoint(self):
+		return self._obj.TargetCheckpoint
+
+	@TargetCheckpoint.setter
+	def TargetCheckpoint(self, value):
+		self._obj.TargetCheckpoint = value
+
+	@property
+	def CheckpointType(self):
+		return self._obj.CheckpointType
+
+	@CheckpointType.setter
+	def CheckpointType(self, value):
+		self._obj.CheckpointType = value
+
 class StateObjectView(object):
 	def __init__(self, obj):
 		self._obj = obj
@@ -783,11 +799,13 @@ class Destination(object):
 		self._tourStateIndex = value
 
 class TourState(object):
-	def __init__(self, name, frameCount, stateObjects, destinations):
+	def __init__(self, name, frameCount, stateObjects, destinations, targetCheckpoint, checkpointType):
 		self._name = name
 		self._frameCount = frameCount
 		self._stateObjects = stateObjects
 		self._destinations = destinations
+		self._targetCheckpoint = targetCheckpoint
+		self._checkpointType = checkpointType
 
 	@property
 	def Name(self):
@@ -804,6 +822,22 @@ class TourState(object):
 	@FrameCount.setter
 	def FrameCount(self, value):
 		self._frameCount = value
+
+	@property
+	def TargetCheckpoint(self):
+		return self._targetCheckpoint
+
+	@TargetCheckpoint.setter
+	def TargetCheckpoint(self, value):
+		self._targetCheckpoint = value
+
+	@property
+	def CheckpointType(self):
+		return self._checkpointType
+
+	@CheckpointType.setter
+	def CheckpointType(self, value):
+		self._checkpointType = value
 
 	@property
 	def StateObjects(self):
@@ -864,7 +898,7 @@ def main():
 											destination = Destination(destinationBone.Name, None, int(destinationBone.Rotation._x))
 											destinations.append(destination)
 								# Finally, create the tour state
-								tourState = TourState(tourStateBone.Name, tourStateBone.Rotation._x, stateObjects, destinations)
+								tourState = TourState(tourStateBone.Name, tourStateBone.Rotation._x, stateObjects, destinations, tourStateBone.Rotation._y, tourStateBone.Rotation._z)
 								tourStateList.append(tourState)
 		# Iterate through tour states and populate their destinations
 		for tourState in tourStateList:
@@ -910,7 +944,7 @@ def main():
 							for tourState in form.TourStates:
 								tourStateBone = MDL0BoneNode()
 								tourStateBone.Name = tourState.Name
-								tourStateBone.Rotation = Vector3(tourState.FrameCount, 0, 0)
+								tourStateBone.Rotation = Vector3(tourState.FrameCount, tourState.TargetCheckpoint, tourState.CheckpointType)
 								bone.AddChild(tourStateBone)
 								# Add state objects
 								stateObjectBoneRoot = MDL0BoneNode()
