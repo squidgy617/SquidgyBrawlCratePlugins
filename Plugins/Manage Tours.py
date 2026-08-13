@@ -596,7 +596,7 @@ class TourManagerForm(Form):
 			destination = Destination("NewDestination", self.TourStates[0], 0)
 			destinations = []
 			destinations.append(destination)
-			tourState = TourState("NewState", 100, stateObjects, destinations)
+			tourState = TourState("NewState", 100, stateObjects, destinations, 0, 2)
 			tourStates.append(tourState)
 			tourStateBindingSource.ResetBindings(False) 
 			destinationStateBindingSource.ResetBindings(False)
