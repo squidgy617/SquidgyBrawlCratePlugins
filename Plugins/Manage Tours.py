@@ -7,6 +7,12 @@ clr.AddReference("System.Drawing")
 from System.Drawing import *
 from System.ComponentModel import *
 from BrawlLib.SSBB.Types import *
+from enum import Enum
+
+class CheckpointType(Enum):
+	Transition = 0
+	Checkpoint = 1
+	NoCheckpoint = 2
 
 class TourObjectView(object):
 	def __init__(self, obj):
@@ -55,14 +61,6 @@ class TourStateView(object):
 	@FrameCount.setter
 	def FrameCount(self, value):
 		self._obj.FrameCount = value
-
-	@property
-	def CheckpointType(self):
-		return self._obj.CheckpointType
-
-	@CheckpointType.setter
-	def CheckpointType(self, value):
-		self._obj.CheckpointType = value
 
 class StateObjectView(object):
 	def __init__(self, obj):
@@ -268,6 +266,9 @@ class TourManagerForm(Form):
 		targetStateComboBox = ComboBox()
 		targetStateComboBox.DropDownStyle = ComboBoxStyle.DropDownList
 
+		checkpointTypeComboBox = ComboBox()
+		checkpointTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList
+
 		stateObjectListBox = ListBox()
 		stateObjectListBox.Dock = DockStyle.Fill
 
@@ -317,6 +318,10 @@ class TourManagerForm(Form):
 		targetStateComboLabel = Label()
 		targetStateComboLabel.Text = "Target State"
 		targetStateComboLabel.AutoSize = True
+
+		checkpointTypeComboLabel = Label()
+		checkpointTypeComboLabel.Text = "Checkpoint Type"
+		checkpointTypeComboLabel.AutoSize = True
 
 		stateObjectLabel = Label()
 		stateObjectLabel.Text = "State Objects"
@@ -480,6 +485,12 @@ class TourManagerForm(Form):
 			[]
 		)
 
+		checkpointComboPanel = createComboContainer(
+			checkpointTypeComboLabel,
+			checkpointTypeComboBox,
+			[]
+		)
+
 		stateObjectPanel = createListContainer(
 			stateObjectHeader,
 			stateObjectListBox
@@ -542,6 +553,13 @@ class TourManagerForm(Form):
 		targetStateComboBox.DataSource = targetStateBindingSource
 		targetStateComboBox.DisplayMember = "Name"
 		targetStateComboBox.DataBindings.Add("SelectedIndex", tourStateBindingSource, "TargetCheckpoint", True, DataSourceUpdateMode.OnPropertyChanged)
+
+		checkpointTypeBindingSource = BindingSource()
+		checkpointTypeBindingSource.DataSource = list(CheckpointType)
+		checkpointTypeComboBox.DataSource = checkpointTypeBindingSource
+		checkpointTypeComboBox.DisplayMember = "name"
+		checkpointTypeComboBox.ValueMember = "value"
+		checkpointTypeComboBox.DataBindings.Add("SelectedIndex", tourStateBindingSource, "CheckpointType", True, DataSourceUpdateMode.OnPropertyChanged)
 
 		# State object bindings
 		stateObjectBindingSource = BindingSource()
@@ -695,8 +713,9 @@ class TourManagerForm(Form):
 
 		tourStateLayout.Controls.Add(tourStatePropertyGrid, 0, 0)
 		tourStateLayout.Controls.Add(targetComboPanel, 0, 1)
-		tourStateLayout.Controls.Add(stateObjectSplit, 0, 2)
-		tourStateLayout.Controls.Add(destinationSplit, 0, 3)
+		tourStateLayout.Controls.Add(checkpointComboPanel, 0, 2)
+		tourStateLayout.Controls.Add(stateObjectSplit, 0, 3)
+		tourStateLayout.Controls.Add(destinationSplit, 0, 4)
 
 		tourStateSplit.Panel1.Controls.Add(tourStatePanel)
 		tourStateSplit.Panel2.Controls.Add(tourStateLayout)
