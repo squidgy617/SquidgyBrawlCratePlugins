@@ -230,10 +230,13 @@ class TourManagerForm(Form):
 
 		tourStateLayout = TableLayoutPanel()
 		tourStateLayout.Dock = DockStyle.Fill
-		tourStateLayout.RowCount = 3
+		tourStateLayout.RowCount = 5
+		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 25))
+		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 10))
+		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 10))
 		for i in range(3):
 			tourStateLayout.RowStyles.Add(
-				RowStyle(SizeType.Percent, 33.33)
+				RowStyle(SizeType.Percent, 22.5)
 			)
 
 		stateObjectLayout = TableLayoutPanel()
