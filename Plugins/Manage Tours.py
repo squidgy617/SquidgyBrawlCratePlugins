@@ -57,14 +57,6 @@ class TourStateView(object):
 		self._obj.FrameCount = value
 
 	@property
-	def TargetCheckpoint(self):
-		return self._obj.TargetCheckpoint
-
-	@TargetCheckpoint.setter
-	def TargetCheckpoint(self, value):
-		self._obj.TargetCheckpoint = value
-
-	@property
 	def CheckpointType(self):
 		return self._obj.CheckpointType
 
@@ -272,7 +264,10 @@ class TourManagerForm(Form):
 		tourStatePropertyGrid.ToolbarVisible = False
 		tourStatePropertyGrid.HelpVisible = True
 		tourStatePropertyGrid.BrowsableAttributes = None
-		
+
+		targetStateComboBox = ComboBox()
+		targetStateComboBox.DropDownStyle = ComboBoxStyle.DropDownList
+
 		stateObjectListBox = ListBox()
 		stateObjectListBox.Dock = DockStyle.Fill
 
@@ -318,6 +313,10 @@ class TourManagerForm(Form):
 		tourStateLabel = Label()
 		tourStateLabel.Text = "Tour States"
 		tourStateLabel.AutoSize = True
+
+		targetStateComboLabel = Label()
+		targetStateComboLabel.Text = "Target State"
+		targetStateComboLabel.AutoSize = True
 
 		stateObjectLabel = Label()
 		stateObjectLabel.Text = "State Objects"
@@ -475,6 +474,12 @@ class TourManagerForm(Form):
 			tourStateListBox
 		)
 
+		targetComboPanel = createComboContainer(
+			targetStateComboLabel,
+			targetStateComboBox,
+			[]
+		)
+
 		stateObjectPanel = createListContainer(
 			stateObjectHeader,
 			stateObjectListBox
@@ -531,6 +536,12 @@ class TourManagerForm(Form):
 				BrawlAPI.ShowMessage(str(e), "An Error Has Occurred")
 
 		tourStateBindingSource.CurrentChanged += onCurrentTourStateChanged
+
+		targetStateBindingSource = BindingSource()
+		targetStateBindingSource.DataSource = self.TourStates
+		targetStateComboBox.DataSource = targetStateBindingSource
+		targetStateComboBox.DisplayMember = "Name"
+		targetStateComboBox.DataBindings.Add("SelectedIndex", tourStateBindingSource, "TargetCheckpoint", True, DataSourceUpdateMode.OnPropertyChanged)
 
 		# State object bindings
 		stateObjectBindingSource = BindingSource()
@@ -683,8 +694,9 @@ class TourManagerForm(Form):
 		tourStateSplit.Panel2.Controls.Add(tourStatePropertyGrid)
 
 		tourStateLayout.Controls.Add(tourStatePropertyGrid, 0, 0)
-		tourStateLayout.Controls.Add(stateObjectSplit, 0, 1)
-		tourStateLayout.Controls.Add(destinationSplit, 0, 2)
+		tourStateLayout.Controls.Add(targetComboPanel, 0, 1)
+		tourStateLayout.Controls.Add(stateObjectSplit, 0, 2)
+		tourStateLayout.Controls.Add(destinationSplit, 0, 3)
 
 		tourStateSplit.Panel1.Controls.Add(tourStatePanel)
 		tourStateSplit.Panel2.Controls.Add(tourStateLayout)
