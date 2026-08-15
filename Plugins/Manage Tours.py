@@ -632,11 +632,13 @@ class TourManagerForm(Form):
 			tourStates.append(tourState)
 			tourStateBindingSource.ResetBindings(False) 
 			destinationStateBindingSource.ResetBindings(False)
+			targetStateBindingSource.ResetBindings(False)
 
 		def onTourStateRemove(sender, e):
 			tourStates.remove(tourStateBindingSource.Current)
 			tourStateBindingSource.ResetBindings(False)
 			destinationStateBindingSource.ResetBindings(False)
+			targetStateBindingSource.ResetBindings(False)
 
 		tourStateAdd.Click += onTourStateAdd
 		tourStateRemove.Click += onTourStateRemove
