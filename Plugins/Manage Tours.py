@@ -234,6 +234,7 @@ class TourManagerForm(Form):
 		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 25))
 		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 10))
 		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 10))
+		tourStateLayout.RowStyles.Add(RowStyle(SizeType.Percent, 5))
 		for i in range(3):
 			tourStateLayout.RowStyles.Add(
 				RowStyle(SizeType.Percent, 22.5)
@@ -271,6 +272,10 @@ class TourManagerForm(Form):
 
 		checkpointTypeComboBox = ComboBox()
 		checkpointTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList
+
+		enemyTransitionBlockCheckBox = CheckBox()
+		enemyTransitionBlockCheckBox.Text = "Block transitions until enemies are defeated"
+		enemyTransitionBlockCheckBox.Width = 300
 
 		stateObjectListBox = ListBox()
 		stateObjectListBox.Dock = DockStyle.Fill
@@ -564,6 +569,8 @@ class TourManagerForm(Form):
 		checkpointTypeComboBox.ValueMember = "value"
 		checkpointTypeComboBox.DataBindings.Add("SelectedIndex", tourStateBindingSource, "CheckpointType", True, DataSourceUpdateMode.OnPropertyChanged)
 
+		enemyTransitionBlockCheckBox.DataBindings.Add("Checked", tourStateBindingSource, "EnemyTransitionBlock", True, DataSourceUpdateMode.OnPropertyChanged)
+
 		# State object bindings
 		stateObjectBindingSource = BindingSource()
 		stateObjectBindingSource.DataSource = tourStateBindingSource.Current.StateObjects
@@ -719,8 +726,9 @@ class TourManagerForm(Form):
 		tourStateLayout.Controls.Add(tourStatePropertyGrid, 0, 0)
 		tourStateLayout.Controls.Add(targetComboPanel, 0, 1)
 		tourStateLayout.Controls.Add(checkpointComboPanel, 0, 2)
-		tourStateLayout.Controls.Add(stateObjectSplit, 0, 3)
-		tourStateLayout.Controls.Add(destinationSplit, 0, 4)
+		tourStateLayout.Controls.Add(enemyTransitionBlockCheckBox, 0, 3)
+		tourStateLayout.Controls.Add(stateObjectSplit, 0, 4)
+		tourStateLayout.Controls.Add(destinationSplit, 0, 5)
 
 		tourStateSplit.Panel1.Controls.Add(tourStatePanel)
 		tourStateSplit.Panel2.Controls.Add(tourStateLayout)
@@ -835,13 +843,14 @@ class Destination(object):
 		self._tourStateIndex = value
 
 class TourState(object):
-	def __init__(self, name, frameCount, stateObjects, destinations, targetCheckpoint, checkpointType):
+	def __init__(self, name, frameCount, stateObjects, destinations, targetCheckpoint, checkpointType, enemyTransitionBlock):
 		self._name = name
 		self._frameCount = frameCount
 		self._stateObjects = stateObjects
 		self._destinations = destinations
 		self._targetCheckpoint = targetCheckpoint
 		self._checkpointType = checkpointType
+		self._enemyTransitionBlock = enemyTransitionBlock
 
 	@property
 	def Name(self):
@@ -874,6 +883,14 @@ class TourState(object):
 	@CheckpointType.setter
 	def CheckpointType(self, value):
 		self._checkpointType = value
+
+	@property
+	def EnemyTransitionBlock(self):
+		return self._enemyTransitionBlock
+
+	@EnemyTransitionBlock.setter
+	def EnemyTransitionBlock(self, value):
+		self._enemyTransitionBlock = value
 
 	@property
 	def StateObjects(self):
@@ -934,7 +951,7 @@ def main():
 											destination = Destination(destinationBone.Name, None, int(destinationBone.Rotation._x))
 											destinations.append(destination)
 								# Finally, create the tour state
-								tourState = TourState(tourStateBone.Name, tourStateBone.Rotation._x, stateObjects, destinations, tourStateBone.Rotation._y, tourStateBone.Rotation._z)
+								tourState = TourState(tourStateBone.Name, tourStateBone.Rotation._x, stateObjects, destinations, tourStateBone.Rotation._y, tourStateBone.Rotation._z, tourStateBone.Translation._x)
 								tourStateList.append(tourState)
 		# Iterate through tour states and populate their destinations
 		for tourState in tourStateList:
@@ -981,6 +998,7 @@ def main():
 								tourStateBone = MDL0BoneNode()
 								tourStateBone.Name = tourState.Name
 								tourStateBone.Rotation = Vector3(tourState.FrameCount, tourState.TargetCheckpoint, tourState.CheckpointType)
+								tourStateBone.Translation = Vector3(tourState.EnemyTransitionBlock, 0, 0)
 								bone.AddChild(tourStateBone)
 								# Add state objects
 								stateObjectBoneRoot = MDL0BoneNode()
