@@ -377,6 +377,8 @@ enemies = [
 	Enemy(38, "R.O.B. Distance", 400, POINTS_TO_FREQUENCY[400], 38560, 435648, 6),
 	Enemy(3, "Jyk", 0, 0, 26528, 128736, 0),
 	Enemy(55, "Porky", 20000, 0, 47488, 1581344, 2),
+	Enemy(54, "Rayquaza", 15000, 0, 104768, 2312800, 2),
+	Enemy(52, "Ridley", 30000, 0, 104768, 2312800, 2),
 ]
 
 enemyGroups = [
