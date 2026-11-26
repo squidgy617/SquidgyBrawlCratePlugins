@@ -379,7 +379,8 @@ enemies = [
 	Enemy(55, "Porky", 20000, 0, 47488, 1581344, 2),
 	Enemy(53, "Rayquaza", 15000, 0, 104768, 2312800, 2),
 	Enemy(52, "Ridley", 30000, 0, 104768, 2312800, 2),
-	Enemy(59, "Master Hand", 0, 0, 49152, 728032, 55)
+	Enemy(59, "Master Hand", 0, 0, 49152, 728032, 55),
+	Enemy(60, "Crazy Hand", 0, 0, 0, 778272, 2)
 ]
 
 enemyGroups = [
