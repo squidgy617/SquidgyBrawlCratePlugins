@@ -384,7 +384,8 @@ enemies = [
 	Enemy(46, "Petey Piranha", 10000, 0, 103424, 1837600, 2),
 	Enemy(54, "Duon", 50000, 0, 48896, 2395424, 2),
 	Enemy(51, "Galleom", 30000, 0, 70848, 3709056, 2),
-	Enemy(56, "Meta Ridley", 30000, 0, 158848, 1825536, 2)
+	Enemy(56, "Meta Ridley", 30000, 0, 158848, 1825536, 2),
+	Enemy(57, "Falcon Flyer", 0, 0, 44672, 983424, 2)
 ]
 
 enemyGroups = [
